@@ -1,0 +1,29 @@
+# ---- Build outputs (regenerate with `deno task build`)
+standalone.html
+/index.html
+src/web/index.html
+
+# ---- Tooling caches and generated indexes
+graphify-out/
+tags
+*.log
+
+# ---- Installed agent skill packs (reinstall from skills-lock.json)
+.agents/skills/
+
+# ---- Third-party / scratch reference material, not project code
+src/original_script.js
+src/reference_original.js
+career_summary.txt
+
+# ---- Local machine state
+.chrome_data/
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ---- iCloud Drive conflict copies ("file 2.js", "folder 2")
+* 2
+* 2.*

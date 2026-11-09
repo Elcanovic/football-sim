@@ -1,0 +1,10 @@
+{
+  "world_cup": {
+    "name": "Copa Mundial de la FIFA",
+    "trophy_url": "https://media.copero.com.ar/trophies/football/international/FIFA/world-cup.png"
+  },
+  "club_world_cup": {
+    "name": "Mundial de Clubes",
+    "trophy_url": "https://media.copero.com.ar/trophies/football/international/FIFA/club-world-cup.png"
+  }
+}

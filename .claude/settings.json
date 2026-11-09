@@ -1,0 +1,7 @@
+{
+  "enabledPlugins": {
+    "mattpocock-skills@claude-plugins-official": true,
+    "taste-skill@taste-skill": true,
+    "interfaces@interfaces": true
+  }
+}

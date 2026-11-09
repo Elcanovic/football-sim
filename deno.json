@@ -1,0 +1,31 @@
+{
+  "tasks": {
+    "demo": "deno run --allow-read --allow-write src/demo.ts",
+    "serve": "deno run --allow-net --allow-read --allow-env=AGENTATION src/server.ts",
+    "build": "deno run --allow-read --allow-write scripts/build_standalone.js",
+    "test": "deno run -A tests/runner.ts",
+    "check": "deno fmt --check && deno lint && deno check src/index.ts src/demo.ts src/server.ts tests/runner.ts"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window", "dom"]
+  },
+  "fmt": {
+    "lineWidth": 120,
+    "include": ["src/", "tests/", "scripts/"],
+    "exclude": [
+      "src/original_script.js",
+      "src/reference_original.js",
+      "src/web/index.html",
+      "src/data/"
+    ]
+  },
+  "lint": {
+    "include": ["src/", "tests/", "scripts/"],
+    "exclude": [
+      "src/original_script.js",
+      "src/reference_original.js",
+      "src/web/index.html",
+      "src/data/"
+    ]
+  }
+}

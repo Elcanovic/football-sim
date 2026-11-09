@@ -1,0 +1,8 @@
+{
+  "deno.enable": true,
+  "deno.lint": true,
+  "deno.config": "./deno.json",
+  "files.exclude": {
+    ".chrome_data": true
+  }
+}

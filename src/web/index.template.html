@@ -1,0 +1,3818 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BallSim Football Sim</title>
+    <meta
+      name="description"
+      content="A football career simulator: register a player, sign for a club, and play out a career season by season."
+    >
+    <meta name="theme-color" content="#0A0B0A">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Semi+Condensed:wght@500;600;700;800&family=Barlow+Condensed:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <script>
+      /*
+      BALLSIM DESIGN SYSTEM: "Floodlight"
+      Broadcast-graphics dark: warm graphite ground, chalk ink, pitch green (you / positive),
+      card yellow (honours / highlight), red card (live / negative), steel blue (data).
+      Every Tailwind scale the runtime (app.js) emits is remapped here, so generated markup
+      inherits the system without touching the engine.
+    */
+      tailwind.config = {
+        darkMode: "class",
+        future: { hoverOnlyWhenSupported: true },
+        theme: {
+          borderRadius: {
+            none: "0",
+            sm: "0",
+            DEFAULT: "0",
+            md: "1px",
+            lg: "2px",
+            xl: "2px",
+            "2xl": "2px",
+            "3xl": "2px",
+            full: "2px",
+          },
+          boxShadow: {
+            sm: "none",
+            DEFAULT: "none",
+            md: "none",
+            lg: "none",
+            xl: "none",
+            "2xl": "none",
+            inner: "none",
+            none: "none",
+          },
+          backdropBlur: { none: "0", sm: "0", DEFAULT: "0", md: "0", lg: "0", xl: "0" },
+          extend: {
+            fontFamily: {
+              sans: ["Barlow", "system-ui", "sans-serif"],
+              display: ['"Barlow Condensed"', '"Arial Narrow"', "sans-serif"],
+              label: ['"Barlow Semi Condensed"', "Barlow", "sans-serif"],
+              mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+            },
+            letterSpacing: { wider: "0.08em", widest: "0.08em" },
+            colors: {
+              zinc: {
+                50: "#F4F3EE",
+                100: "#ECEAE2",
+                200: "#D6D5CD",
+                300: "#C4C5BD",
+                400: "#A3A69E",
+                500: "#8A8D85",
+                600: "#4D504A",
+                700: "#363934",
+                800: "#232622",
+                900: "#161816",
+                950: "#0D0E0D",
+              },
+              slate: {
+                50: "#F4F3EE",
+                100: "#ECEAE2",
+                200: "#D6D5CD",
+                300: "#C4C5BD",
+                400: "#A3A69E",
+                500: "#8A8D85",
+                600: "#4D504A",
+                700: "#363934",
+                800: "#232622",
+                900: "#161816",
+                950: "#0A0B0A",
+              },
+              emerald: {
+                50: "#EAF8EE",
+                100: "#CDEFD7",
+                200: "#A2E2B5",
+                300: "#7FD69A",
+                400: "#45C06A",
+                500: "#2FA84F",
+                600: "#23883F",
+                700: "#1B6A31",
+                800: "#144D24",
+                900: "#0F3519",
+                950: "#0A2412",
+              },
+              green: {
+                300: "#7FD69A",
+                400: "#45C06A",
+                500: "#2FA84F",
+                600: "#23883F",
+                700: "#1B6A31",
+                900: "#0F3519",
+                950: "#0A2412",
+              },
+              cyan: {
+                50: "#EAF5FA",
+                100: "#D2EAF4",
+                200: "#B8DDEE",
+                300: "#A5D3E8",
+                400: "#6FB8DA",
+                500: "#3F9CC7",
+                600: "#2C7EA6",
+                700: "#225F7D",
+                800: "#1A4559",
+                900: "#12303D",
+                950: "#0B1D26",
+              },
+              sky: {
+                50: "#EAF5FA",
+                100: "#D2EAF4",
+                200: "#B8DDEE",
+                300: "#A5D3E8",
+                400: "#6FB8DA",
+                500: "#3F9CC7",
+                600: "#2C7EA6",
+                700: "#225F7D",
+                800: "#1A4559",
+                900: "#12303D",
+                950: "#0B1D26",
+              },
+              blue: {
+                300: "#A5D3E8",
+                400: "#6FB8DA",
+                500: "#3F9CC7",
+                600: "#2C7EA6",
+                700: "#225F7D",
+                900: "#12303D",
+                950: "#0B1D26",
+              },
+              amber: {
+                50: "#FFF8DB",
+                100: "#FFEFAD",
+                200: "#FFE47F",
+                300: "#FFDB5C",
+                400: "#F6C516",
+                500: "#E0AE00",
+                600: "#B68C00",
+                700: "#8A6A00",
+                800: "#5E4800",
+                900: "#3A2D00",
+                950: "#221A00",
+              },
+              yellow: {
+                300: "#FFDB5C",
+                400: "#F6C516",
+                500: "#E0AE00",
+                600: "#B68C00",
+                900: "#3A2D00",
+                950: "#221A00",
+              },
+              rose: {
+                50: "#FDECEA",
+                100: "#FBD3CF",
+                200: "#F8B0A9",
+                300: "#FF8A80",
+                400: "#F2564B",
+                500: "#E0342B",
+                600: "#B9241C",
+                700: "#8E1B15",
+                800: "#63130F",
+                900: "#3E0C09",
+                950: "#2A0806",
+              },
+              red: {
+                300: "#FF8A80",
+                400: "#F2564B",
+                500: "#E0342B",
+                600: "#B9241C",
+                700: "#8E1B15",
+                900: "#3E0C09",
+                950: "#2A0806",
+              },
+              /* No violet in the system: dev / commercial accents become hazard orange. */
+              purple: {
+                50: "#FFF1E6",
+                100: "#FFDDC2",
+                200: "#FFC79C",
+                300: "#FFB27A",
+                400: "#FF8A3D",
+                500: "#F26B1D",
+                600: "#CC5410",
+                700: "#9C400C",
+                800: "#6B2C08",
+                900: "#431B05",
+                950: "#2B1205",
+              },
+              indigo: {
+                300: "#FFB27A",
+                400: "#FF8A3D",
+                500: "#F26B1D",
+                600: "#CC5410",
+                700: "#9C400C",
+                900: "#431B05",
+                950: "#2B1205",
+              },
+              fuchsia: {
+                300: "#FFB27A",
+                400: "#FF8A3D",
+                500: "#F26B1D",
+                600: "#CC5410",
+                900: "#431B05",
+                950: "#2B1205",
+              },
+              violet: {
+                300: "#FFB27A",
+                400: "#FF8A3D",
+                500: "#F26B1D",
+                600: "#CC5410",
+                900: "#431B05",
+                950: "#2B1205",
+              },
+              pink: {
+                300: "#FF9FAE",
+                400: "#FF6F86",
+                500: "#F04A66",
+                600: "#C9344F",
+                700: "#9A2539",
+                900: "#3F0E18",
+                950: "#2A0910",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --bg: #0a0b0a;
+        --panel: #111311;
+        --panel-2: #171a17;
+        --panel-3: #1d201c;
+        --line: #262a26;
+        --line-2: #3a3f39;
+        --ink: #eceae2;
+        --ink-2: #c4c5bd;
+        --muted: #a3a69e; /* 6.7:1 on panel-3 */
+        --faint: #8a8d85; /* 4.9:1 on panel-3, placeholder floor */
+        --pitch: #2fa84f;
+        --pitch-hi: #45c06a;
+        --card: #f6c516;
+        --red: #e0342b;
+        --steel: #6fb8da;
+        --hazard: #f26b1d;
+        --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+        --font-body: Barlow, system-ui, sans-serif;
+        --font-label: "Barlow Semi Condensed", Barlow, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+        --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+        --ease-out: cubic-bezier(0.2, 0, 0, 1); /* interaction ease-out */
+        --t-fast: 120ms; /* hover / focus / press release */
+        --hit: 44px; /* minimum touch and click target */
+        --step: inset 0 -2px 0 0 rgb(0 0 0 / 0.38); /* key edge at rest */
+        --step-pressed: inset 0 -1px 0 0 rgb(0 0 0 / 0.38); /* key edge while held */
+
+        /* legacy tokens kept for any older runtime reference */
+        --obsidian-canvas: var(--bg);
+        --obsidian-card: var(--panel);
+        --obsidian-surface: var(--panel-2);
+        --obsidian-border: var(--line);
+        --obsidian-hover-border: var(--line-2);
+        --pitch-emerald: var(--pitch);
+        --stadium-cyan: var(--steel);
+        --stadium-gold: var(--card);
+        --stadium-rose: var(--red);
+      }
+
+      html {
+        background: var(--bg);
+      }
+      body {
+        font-family: var(--font-body);
+        background-color: var(--bg);
+        color: var(--ink);
+        letter-spacing: 0;
+        line-height: 1.5;
+        /* faint mown-pitch banding under everything, like a stadium seen through the broadcast */
+        background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 88px, transparent 88px 176px);
+      }
+      /* ---------- Type system ----------
+         display  Barlow Condensed      headings, names, titles (uppercase, balanced)
+         label    Barlow Semi Condensed micro-labels, positions, status + telemetry badges (uppercase, 0.08em)
+         text     Barlow                body copy (pretty wrap, 65ch measure)
+         data     JetBrains Mono        ratings, stats, money, minutes, tables (tabular-nums)            */
+      h1, h2, h3, h4, .font-display {
+        font-family: var(--font-display);
+        text-transform: uppercase;
+        letter-spacing: 0;
+        line-height: 1.1;
+        text-wrap: balance;
+      }
+      p {
+        text-wrap: pretty;
+      }
+      .prose-copy {
+        max-width: 65ch;
+        text-wrap: pretty;
+        line-height: 1.5;
+      }
+      .font-mono {
+        font-family: var(--font-mono);
+        letter-spacing: -0.01em;
+      }
+      .font-mono, .tnum, .value, .attr-val, .data-table, #badgeOvr, .ticker-item, input[type="number"] {
+        font-variant-numeric: tabular-nums;
+      }
+      .font-label {
+        font-family: var(--font-label);
+      }
+      /* micro text emitted by app.js: lift to an 11px floor and give uppercase labels one tracking value */
+      .text-\[9px\], .text-\[10px\] {
+        font-size: 0.6875rem !important;
+      }
+      .uppercase:is(.text-\[9px\], .text-\[10px\], .text-\[11px\], .text-xs) {
+        letter-spacing: 0.08em;
+        font-family: var(--font-label);
+        font-weight: 700;
+      }
+      ::selection {
+        background: var(--card);
+        color: #0a0b0a;
+      }
+
+      /* ---------- Global flattening of runtime markup ---------- */
+      [class*="bg-gradient-to-"] {
+        background-image: none !important;
+      }
+      @media (hover: hover) {
+        [class*="hover:scale-"]:hover, .hover-lift:hover {
+          transform: translateY(-2px) !important;
+          box-shadow: none !important;
+        }
+      }
+      [class*="drop-shadow"] {
+        --tw-drop-shadow: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.6));
+      }
+      :focus-visible {
+        outline: 2px solid var(--card);
+        outline-offset: 2px;
+      }
+      input, select, button {
+        font-family: inherit;
+      }
+      input[type="number"] {
+        font-family: var(--font-mono);
+      }
+
+      /* ---------- Structure ---------- */
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        position: relative;
+      }
+      /* Legacy names emitted by app.js */
+      .fm-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 0;
+        transition: border-color 0.15s var(--ease);
+      }
+      @media (hover: hover) {
+        .fm-card:hover {
+          border-color: var(--line-2);
+        }
+      }
+      .fm-subcard {
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-radius: 0;
+        transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease);
+      }
+      @media (hover: hover) {
+        .fm-subcard:hover {
+          border-color: var(--line-2);
+          background: var(--panel-3);
+        }
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.25rem 0.75rem;
+        min-height: 34px;
+        padding: 0.35rem 0.75rem;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel-2);
+      }
+      .panel-title {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 1rem;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink);
+        text-wrap: balance;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .panel-title::before {
+        content: "";
+        width: 3px;
+        height: 14px;
+        background: var(--pitch);
+      }
+      .panel-title.t-card::before {
+        background: var(--card);
+      }
+      .panel-title.t-steel::before {
+        background: var(--steel);
+      }
+      .panel-title.t-red::before {
+        background: var(--red);
+      }
+      .panel-meta {
+        font-family: var(--font-label);
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      /* 1px grid lines: the gap shows the line colour behind the cells */
+      .grid-lines {
+        display: grid;
+        gap: 1px;
+        background: var(--line);
+      }
+      .grid-lines > * {
+        background: var(--panel);
+        min-width: 0;
+      }
+      .cell {
+        padding: 0.6rem 0.75rem;
+      }
+
+      .kicker {
+        font-family: var(--font-label);
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .value {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        color: var(--ink);
+        font-size: 0.9375rem;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        height: 20px;
+        padding: 0 0.45rem;
+        font-family: var(--font-label);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border: 1px solid var(--line-2);
+        color: var(--ink-2);
+        background: var(--panel-2);
+        white-space: nowrap;
+        text-box: trim-both cap alphabetic;
+      }
+
+      /* ---------- Buttons ---------- */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        min-height: var(--hit);
+        padding: 0 0.85rem;
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border: 1px solid var(--line-2);
+        background: var(--panel-2);
+        color: var(--ink);
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+        box-shadow: var(--step);
+        transition-property: background-color, border-color, color, box-shadow, transform;
+        transition-duration: var(--t-fast);
+        transition-timing-function: var(--ease-out);
+      }
+      @media (hover: hover) {
+        .btn:hover {
+          background: var(--panel-3);
+          border-color: var(--ink-2);
+        }
+      }
+      .btn-lg {
+        min-height: 48px;
+        font-size: 17px;
+        padding: 0 1.25rem;
+      }
+      .btn-primary {
+        background: var(--ink);
+        color: #0a0b0a;
+        border-color: var(--ink);
+      }
+      @media (hover: hover) {
+        .btn-primary:hover {
+          background: #ffffff;
+          border-color: #ffffff;
+        }
+      }
+      .btn-go {
+        background: var(--pitch);
+        color: #06140a;
+        border-color: var(--pitch);
+      }
+      @media (hover: hover) {
+        .btn-go:hover {
+          background: var(--pitch-hi);
+          border-color: var(--pitch-hi);
+        }
+      }
+      .btn-card {
+        background: var(--card);
+        color: #171200;
+        border-color: var(--card);
+      }
+      @media (hover: hover) {
+        .btn-card:hover {
+          background: #ffd535;
+          border-color: #ffd535;
+        }
+      }
+      .btn-hazard {
+        background: var(--hazard);
+        color: #1a0a00;
+        border-color: var(--hazard);
+      }
+      @media (hover: hover) {
+        .btn-hazard:hover {
+          background: #ff8a3d;
+          border-color: #ff8a3d;
+        }
+      }
+      .btn-ghost {
+        background: transparent;
+        border-color: var(--line-2);
+        color: var(--ink-2);
+      }
+      @media (hover: hover) {
+        .btn-ghost:hover {
+          color: var(--ink);
+        }
+      }
+      @media (hover: hover) {
+        .btn-danger:hover {
+          border-color: var(--red);
+          color: #ff8a80;
+          background: rgba(224, 52, 43, 0.08);
+        }
+      }
+      .btn-sm {
+        min-width: var(--hit);
+        font-size: 12px;
+        padding: 0 0.6rem;
+      }
+      .btn-x {
+        width: var(--hit);
+        height: var(--hit);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line-2);
+        color: var(--ink-2);
+        font-family: var(--font-mono);
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          color var(--t-fast) var(--ease-out),
+          border-color var(--t-fast) var(--ease-out),
+          background-color var(--t-fast) var(--ease-out),
+          transform var(--t-fast) var(--ease-out);
+      }
+      @media (hover: hover) {
+        .btn-x:hover {
+          color: #0a0b0a;
+          background: var(--ink);
+          border-color: var(--ink);
+        }
+      }
+
+      /* toolbar of joined buttons */
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+      }
+      .toolbar > .btn {
+        border: 0;
+        background: var(--panel-2);
+      }
+      @media (hover: hover) {
+        .toolbar > .btn:hover {
+          background: var(--panel-3);
+          color: var(--card);
+        }
+      }
+
+      /* ---------- Form fields ---------- */
+      .label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-family: var(--font-label);
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .field {
+        width: 100%;
+        min-height: var(--hit);
+        padding: 0 0.75rem;
+        background: var(--bg);
+        color: var(--ink);
+        border: 1px solid var(--line-2);
+        font-weight: 600;
+        font-size: 1rem;
+        border-radius: 0;
+        transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
+      }
+      @media (hover: hover) {
+        .field:hover {
+          border-color: var(--muted);
+        }
+      }
+      .field:focus {
+        outline: none;
+        border-color: var(--card);
+        box-shadow: inset 0 -2px 0 var(--card);
+      }
+      select.field {
+        appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--ink-2) 50%),
+          linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
+        background-position:
+          calc(100% - 16px) 50%,
+          calc(100% - 11px) 50%;
+        background-size: 5px 5px;
+        background-repeat: no-repeat;
+        padding-right: 2rem;
+      }
+      .field-sm {
+        min-height: var(--hit);
+      }
+      @media (min-width: 640px) {
+        .field {
+          font-size: 0.875rem;
+        }
+        .field-sm {
+          font-size: 0.8125rem;
+        }
+      }
+      .field::placeholder {
+        color: var(--faint);
+        font-weight: 500;
+      }
+
+      /* segmented selector (position / foot) — JS toggles emerald / zinc classes */
+      .seg {
+        display: grid;
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+      }
+      .seg > button {
+        min-height: var(--hit);
+        border: 0 !important;
+        font-family: var(--font-label);
+        font-weight: 700;
+        font-size: 0.8125rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition:
+          background-color var(--t-fast) var(--ease-out),
+          color var(--t-fast) var(--ease-out),
+          box-shadow var(--t-fast) var(--ease-out),
+          transform var(--t-fast) var(--ease-out);
+      }
+      @media (hover: hover) {
+        .seg > button.bg-zinc-950:hover {
+          background: var(--panel-3);
+          color: var(--ink);
+        }
+      }
+      .seg > button.border-emerald-500 {
+        background: var(--pitch) !important;
+        color: #06140a !important;
+      }
+
+      /* square switch */
+      .switch {
+        position: relative;
+        display: inline-flex;
+        width: 38px;
+        height: 20px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .switch::before {
+        content: "";
+        position: absolute;
+        inset: -12px -3px;
+      } /* 44×44 hit area */
+      .switch input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+      }
+      .switch .track {
+        position: absolute;
+        inset: 0;
+        border: 1px solid var(--line-2);
+        background: var(--bg);
+        transition: background-color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
+      }
+      .switch .track::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 12px;
+        height: 12px;
+        background: var(--muted);
+        transition: transform 150ms var(--ease-out), background-color 150ms var(--ease-out);
+      }
+      .switch input:checked + .track {
+        background: rgba(47, 168, 79, 0.18);
+        border-color: var(--pitch);
+      }
+      .switch input:checked + .track::after {
+        transform: translateX(18px);
+        background: var(--pitch-hi);
+      }
+      .switch input:focus-visible + .track {
+        outline: 2px solid var(--card);
+        outline-offset: 2px;
+      }
+
+      /* ---------- Meters: segmented scoreboard bars ---------- */
+      .meter {
+        position: relative;
+        height: 10px;
+        background: var(--bg);
+        border: 1px solid var(--line-2);
+        overflow: hidden;
+      }
+      .meter > div {
+        height: 100%;
+        transition: width 0.5s var(--ease);
+      }
+      .meter::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), var(--bg) calc(10% - 2px) 10%);
+      }
+
+      /* ---------- OVR plate (scoreboard digit block) ---------- */
+      .ovr-plate {
+        position: relative;
+        width: 88px;
+        height: 88px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 2.75rem;
+        line-height: 1;
+      }
+      .ovr-plate #badgeOvr {
+        font-family: var(--font-mono);
+        letter-spacing: -0.04em;
+      }
+      .ovr-plate .ovr-label {
+        font-family: var(--font-label);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        opacity: 0.8;
+        margin-top: 4px;
+      }
+      @container scoreboard (min-width: 560px) {
+        .ovr-plate {
+          width: 104px;
+          height: 104px;
+          font-size: 3.25rem;
+        }
+      }
+
+      /* ---------- Scrollbars ---------- */
+      .thin-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: var(--line-2) transparent;
+      }
+      .thin-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .thin-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .thin-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--line-2);
+        border-radius: 0;
+      }
+
+      /* ---------- League table ---------- */
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .data-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--panel-2);
+        font-family: var(--font-label);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        height: 28px;
+        border-bottom: 1px solid var(--line-2);
+      }
+      .data-table tbody tr {
+        border-bottom: 1px solid var(--line);
+      }
+      @media (hover: hover) {
+        .data-table tbody tr:hover {
+          background: var(--panel-2);
+        }
+      }
+      .data-table tbody td {
+        height: 30px;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        vertical-align: middle;
+      }
+      .data-table tbody tr.border-l-2 {
+        box-shadow: inset 3px 0 0 var(--pitch);
+        background: rgba(47, 168, 79, 0.10);
+      }
+      .data-table tbody td:first-child {
+        font-family: var(--font-mono);
+      }
+
+      /* ---------- Modals ---------- */
+      .modal-scrim {
+        background: rgba(5, 6, 5, 0.86);
+      }
+      .modal {
+        background: var(--panel);
+        border: 1px solid var(--line-2);
+        border-top: 3px solid var(--accent, var(--ink));
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel-2);
+      }
+      .modal-title {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 1.375rem;
+        text-transform: uppercase;
+        letter-spacing: 0;
+        color: var(--ink);
+        line-height: 1.1;
+        text-wrap: balance;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .modal-sub {
+        font-size: 0.8125rem;
+        color: var(--ink-2);
+        margin-top: 0.25rem;
+        max-width: 65ch;
+        text-wrap: pretty;
+      }
+      .modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.65rem 1rem;
+        border-top: 1px solid var(--line);
+        background: var(--panel-2);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .icon-tile {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        border: 1px solid var(--line-2);
+        background: var(--bg);
+      }
+
+      .tab {
+        height: 32px;
+        padding: 0 0.8rem;
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+      }
+
+      /* =====================================================================
+         BROADCAST BOARD LAYOUT
+         One frame, shared 1px dividers (the 1px gap reveals --line behind the
+         cells). Page rows use viewport breakpoints; every component inside
+         adapts to its own width with @container.
+         ===================================================================== */
+      html {
+        scroll-padding-block-start: 4rem;
+      }
+      .wrap-anywhere {
+        overflow-wrap: break-word;
+        min-width: 0;
+      }
+
+      .board {
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+      }
+      .board-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1px;
+        background: var(--line);
+      }
+      .board-row > * {
+        min-width: 0;
+      }
+      .board-col {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        background: var(--line);
+        min-width: 0;
+      }
+      .board .panel {
+        border: 0;
+      }
+      .cq {
+        container-type: inline-size;
+      }
+
+      .ticker-window {
+        mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+      }
+
+      /* ---- Scoreboard ---- */
+      .sb {
+        container: scoreboard / inline-size;
+      }
+      .sb-top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .sb-id {
+        display: flex;
+        align-items: stretch;
+        min-width: 0;
+        border-block-end: 1px solid var(--line);
+      }
+      .sb-name {
+        flex: 1;
+        min-width: 0;
+        padding: 0.75rem 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.45rem;
+      }
+      #hudPlayerName {
+        font-size: clamp(2rem, 1.25rem + 4.5cqi, 3.25rem);
+        overflow-wrap: break-word;
+      }
+      .sb-tools {
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        min-width: 0;
+      }
+      .sb-toolbar {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .sb-toolbar > .btn {
+        height: auto;
+        min-height: var(--hit);
+        padding-block: 0.4rem;
+        white-space: normal;
+        text-align: center;
+        min-width: 0;
+      }
+      .sb-meta {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border-block-start: 1px solid var(--line);
+      }
+      .sb-meta > :first-child {
+        grid-column: 1 / -1;
+      }
+      @container scoreboard (min-width: 560px) {
+        .sb-toolbar {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .sb-meta {
+          grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+        }
+        .sb-meta > :first-child {
+          grid-column: auto;
+        }
+      }
+      @container scoreboard (min-width: 900px) {
+        .sb-top {
+          grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+        }
+        .sb-id {
+          border-block-end: 0;
+          border-inline-end: 1px solid var(--line);
+        }
+        .sb-toolbar {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @container scoreboard (max-width: 359px) {
+        .ovr-plate {
+          width: 72px;
+          height: auto;
+          min-height: 72px;
+          font-size: 2.25rem;
+        }
+        .sb-name {
+          padding: 0.6rem 0.75rem;
+        }
+      }
+
+      /* ---- Stat strips & bars ---- */
+      .attr-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .attr-cell .attr-val {
+        font-size: clamp(1.5rem, 1rem + 2.2cqi, 2rem);
+      }
+      @container (min-width: 520px) {
+        .attr-grid {
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+        }
+      }
+      @container (max-width: 239px) {
+        .attr-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      .meters {
+        display: grid;
+        gap: 0.875rem 1.5rem;
+      }
+      @container (min-width: 560px) {
+        .meters {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      .shelf-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      @container (min-width: 480px) {
+        .shelf-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      .social-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .social-cell {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 0.5rem;
+        min-width: 0;
+        transition: background-color 0.12s;
+      }
+      @media (hover: hover) {
+        .social-cell:hover {
+          background: var(--panel-2) !important;
+        }
+      }
+      @container (max-width: 299px) {
+        .social-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .social-cell {
+          display: grid;
+          grid-template-columns: 2rem minmax(0, 1fr) 5.5rem;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .social-cell > * {
+          margin: 0 !important;
+        }
+      }
+
+      .totals-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      @container (max-width: 339px) {
+        .totals-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      /* ---- Offers: one joined strip, columns fit the decision panel's width ---- */
+      /* stacked when narrow; one equal-width row when wide, for any number of offers (never an orphan cell) */
+      .offer-grid {
+        display: grid;
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+        grid-template-columns: minmax(0, 1fr);
+      }
+      @container (min-width: 520px) {
+        .offer-grid {
+          grid-template-columns: none;
+          grid-auto-flow: column;
+          grid-auto-columns: minmax(0, 1fr);
+        }
+      }
+      .offer-grid > * {
+        min-width: 0;
+        background-color: var(--panel);
+        border-inline-width: 0 !important;
+        border-bottom-width: 0 !important;
+      }
+      .offer-grid > button {
+        border-top-width: 2px !important;
+      }
+      @media (hover: hover) {
+        .offer-grid > *:hover {
+          transform: none !important;
+        }
+      }
+      .offer-grid > .col-span-3 {
+        grid-column: 1 / -1;
+      }
+
+      /* ---- League table: drop W/D/L before ever truncating a club name ---- */
+      .standings {
+        container-name: standings;
+      }
+      .club-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-width: 0;
+        padding-block: 0.35rem;
+      }
+      .club-cell > span {
+        font-family: var(--font-body);
+        font-weight: 600;
+        line-height: 1.25;
+        overflow-wrap: break-word;
+        min-width: 0;
+      }
+      .club-wdl {
+        display: none;
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        font-weight: 500;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      /* narrow: W/D/L columns fold into a record line under the club name, so no data disappears */
+      @container standings (max-width: 459px) {
+        .col-wdl {
+          display: none;
+        }
+        .club-wdl {
+          display: block;
+        }
+      }
+
+      /* ---- Season log rows ---- */
+      .log-row {
+        display: grid;
+        align-items: center;
+        column-gap: 0.625rem;
+        row-gap: 0.3rem;
+        grid-template-columns: 2rem 1.25rem minmax(0, 1fr) auto auto 2.5rem;
+        grid-template-areas: "age crest club silver stats ovr";
+        padding: 0.55rem 0.75rem;
+        border-block-end: 1px solid var(--line);
+        transition: background-color 0.12s;
+      }
+      @media (hover: hover) {
+        .log-row:hover {
+          background: var(--panel-2);
+        }
+      }
+      .log-age, .log-ovr {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 1.5rem;
+        border: 1px solid var(--line-2);
+        background: var(--bg);
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 0.75rem;
+        font-variant-numeric: tabular-nums;
+      }
+      .log-age {
+        grid-area: age;
+        color: var(--ink);
+      }
+      .log-ovr {
+        grid-area: ovr;
+        color: var(--steel);
+      }
+      .log-crest {
+        grid-area: crest;
+        width: 1.25rem;
+        height: 1.25rem;
+        object-fit: contain;
+      }
+      .log-club {
+        grid-area: club;
+        min-width: 0;
+      }
+      .log-name {
+        font-weight: 700;
+        font-size: 0.8125rem;
+        line-height: 1.25;
+        color: var(--ink);
+        overflow-wrap: break-word;
+      }
+      .log-meta, .log-rating {
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .log-silver {
+        grid-area: silver;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        justify-content: end;
+      }
+      .log-silver:empty {
+        display: none;
+      }
+      .log-stats {
+        grid-area: stats;
+        text-align: end;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      @container (max-width: 419px) {
+        .log-row {
+          grid-template-columns: 2rem 1.25rem minmax(0, 1fr) 2.5rem;
+          grid-template-areas: "age crest club ovr" ". . stats stats" ". . silver silver";
+        }
+        .log-stats {
+          text-align: start;
+        }
+        .log-silver {
+          justify-content: start;
+        }
+      }
+
+      /* ---------- Celebration ---------- */
+      @keyframes burst {
+        0% {
+          transform: translate(-50%, -50%) rotate(var(--burst-angle)) translateY(0px) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(var(--burst-angle)) translateY(var(--burst-dist)) scale(0.2);
+          opacity: 0;
+        }
+      }
+      @keyframes glowPulse {
+        0%, 100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0.35;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.25);
+          opacity: 0.6;
+        }
+      }
+      .celebration-particle {
+        position: absolute;
+        width: 6px;
+        height: 10px;
+        background-color: var(--burst-color);
+        animation: burst 1.3s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
+        animation-delay: var(--burst-delay);
+      }
+      .celebration-glow {
+        animation: glowPulse 2s ease-in-out infinite;
+      }
+      /* Overlay shell: fades out over 150ms on dismiss */
+      .celebration {
+        transition: opacity 150ms var(--ease-out);
+      }
+      .celebration.is-leaving {
+        opacity: 0;
+      }
+      .celebration-board {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        max-height: calc(100dvh - 7.5rem);
+        background: var(--panel);
+        border: 1px solid var(--card);
+        container: podium / inline-size;
+      }
+      .celebration-bar {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: stretch;
+        border-block-end: 1px solid var(--line);
+      }
+      .celebration-ft {
+        display: flex;
+        align-items: center;
+        padding-inline: 0.75rem;
+        background: var(--card);
+        color: #171200;
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 0.875rem;
+      }
+      .celebration-heading {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.15rem;
+        padding: 0.5rem 0.9rem;
+        min-width: 0;
+      }
+      .celebration-tally {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 0.2rem;
+        padding: 0.45rem 0.9rem;
+        border-inline-start: 1px solid var(--line);
+      }
+      /* Gold odometer: a column of every value from before to after; each step slides it by
+         one line. Fixed ch width + tabular figures, so the box never resizes as digits change. */
+      .tally-window {
+        display: block;
+        overflow: hidden;
+        height: 1em;
+        width: var(--tally-ch, 2ch);
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 2.25rem;
+        line-height: 1;
+        letter-spacing: 0;
+        color: var(--card);
+        text-align: end;
+        font-variant-numeric: tabular-nums;
+      }
+      .tally-strip {
+        display: flex;
+        flex-direction: column;
+        transform: translate3d(0, calc(var(--tally-step, 0) * -1em), 0);
+        transition: transform 240ms var(--ease-out);
+        will-change: transform;
+      }
+      .tally-strip > span {
+        display: block;
+        height: 1em;
+      }
+
+      /* Season boards: one sub-board per season. 2 seasons side by side, 3 seasons two over one.
+         Grouped by space, not rules: 1rem between seasons, .5rem between trophies in a season. */
+      .podium-seasons {
+        display: grid;
+        gap: 1rem;
+        padding: 1rem;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+      }
+      .podium-seasons.is-2-seasons, .podium-seasons.is-3-seasons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .podium-seasons.is-3-seasons > .podium-season-group:nth-child(3) {
+        grid-column: 1 / -1;
+      }
+      .podium-season-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 0;
+        padding: 0.75rem;
+        background: var(--panel-2);
+      }
+      .podium-season-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.25rem 0.5rem;
+      }
+      .podium-season-head .podium-season {
+        font-size: 0.875rem;
+        color: var(--card);
+      }
+      .podium-grid {
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+      }
+      .podium-grid.is-single {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .celebration-board:has(.podium-seasons.is-single) {
+        width: 100%;
+        max-width: 26rem;
+        margin-inline: auto;
+      }
+      /* Scroll cue: a fade over the bottom edge while trophies remain below the fold */
+      .celebration-board::after {
+        content: "";
+        position: absolute;
+        inset-inline: 1px;
+        inset-block-end: 1px;
+        height: 2.5rem;
+        background: linear-gradient(to bottom, transparent, var(--panel));
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 150ms var(--ease-out);
+      }
+      .celebration-board.has-more::after {
+        opacity: 1;
+      }
+      .podium-cell {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        justify-items: center;
+        gap: 0.35rem;
+        min-width: 0;
+        padding: 0.55rem 0.6rem 0.7rem;
+        text-align: center;
+        background: var(--panel-3);
+        animation: podiumEnter 300ms var(--ease-out) both;
+        animation-delay: calc(var(--i, 0) * 100ms);
+        will-change: transform, opacity;
+      }
+      /* Stage interaction: a trophy lifts toward the pointer. A transition, so it reverses mid-flight */
+      .podium-img {
+        transition: transform 150ms var(--ease-out);
+      }
+      @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+        .podium-cell:hover .podium-img {
+          transform: translate3d(0, -4px, 0) scale(1.06);
+        }
+      }
+      .celebration-continue {
+        align-self: center;
+        margin-block-start: 1rem;
+        min-width: 12rem;
+        animation: podiumEnter 300ms var(--ease-out) both;
+        animation-delay: calc(var(--i, 0) * 100ms);
+      }
+      /* Exit: shorter and smaller than the enter (opacity, 4px blur, -12px, 150ms).
+         The button fades with the overlay shell; its fill-mode entrance would override a transition. */
+      .celebration-board {
+        transition: opacity 150ms var(--ease-out);
+      }
+      .celebration.is-leaving .celebration-board {
+        opacity: 0;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .celebration-board {
+          transition-property: opacity, transform, filter;
+        }
+        .celebration.is-leaving .celebration-board {
+          transform: translate3d(0, -12px, 0);
+          filter: blur(4px);
+        }
+      }
+      .podium-seasons.is-settled .podium-cell {
+        will-change: auto;
+      }
+      .podium-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.25rem 0.4rem;
+        width: 100%;
+        min-width: 0;
+      }
+      .podium-badge {
+        font-family: var(--font-label);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.1rem 0.35rem;
+        border: 1px solid var(--card);
+        color: var(--card);
+        white-space: nowrap;
+      }
+      .podium-badge-award {
+        border-color: var(--steel);
+        color: var(--steel);
+      }
+      .podium-season {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--ink-2);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .podium-img {
+        width: 100%;
+        height: 5.5rem;
+        object-fit: contain;
+        align-self: end;
+      }
+      .podium-grid.is-single .podium-img {
+        height: 9rem;
+      }
+      .podium-name {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 1rem;
+        line-height: 1.1;
+        text-transform: uppercase;
+        color: var(--ink);
+        text-wrap: balance;
+        overflow-wrap: break-word;
+        max-width: 100%;
+      }
+      .podium-age {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      @container podium (max-width: 479px) {
+        .podium-cell {
+          padding: 0.45rem 0.45rem 0.55rem;
+          gap: 0.25rem;
+        }
+        .podium-head {
+          justify-content: center;
+        }
+        .podium-seasons.is-2-seasons, .podium-seasons.is-3-seasons {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .podium-img {
+          height: 3.75rem;
+        }
+        .podium-grid.is-single .podium-img {
+          height: 7rem;
+        }
+        .podium-name {
+          font-size: 0.875rem;
+        }
+        .tally-window {
+          font-size: 1.875rem;
+        }
+      }
+      @keyframes podiumEnter {
+        from {
+          opacity: 0;
+          transform: translate3d(0, 12px, 0);
+          filter: blur(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+          filter: blur(0);
+        }
+      }
+      .counting-number {
+        transition: color 0.5s ease-out;
+      }
+      .transition-smooth {
+        transition-property: color, background-color, border-color, opacity, transform;
+        transition-duration: 0.25s;
+        transition-timing-function: var(--ease);
+      }
+      @keyframes fadeInSlideUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeInUp {
+        animation: fadeInSlideUp 0.3s var(--ease) forwards;
+      }
+      @keyframes goldShimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+      .shimmer-gold {
+        background: linear-gradient(100deg, transparent 0%, rgba(246, 197, 22, 0.14) 50%, transparent 100%);
+        background-size: 200% 100%;
+        animation: goldShimmer 4s infinite linear;
+      }
+      .hover-lift {
+        transition: transform 0.2s var(--ease), border-color 0.2s;
+      }
+      @media (hover: hover) {
+        .hover-lift:hover {
+          border-color: var(--line-2) !important;
+        }
+      }
+
+      /* Prime Icon card: a printed matchday card, not a glowing tile */
+      .prime-icon-card {
+        background:
+          repeating-linear-gradient(0deg, rgba(246, 197, 22, 0.05) 0 1px, transparent 1px 6px),
+          #14120a;
+        border: 1px solid var(--card);
+        outline: 1px solid rgba(246, 197, 22, 0.35);
+        outline-offset: 4px;
+      }
+
+      /* ---------- Trophy stacks ---------- */
+      /* isolation: the item/count z-indexes stay local to each stack, so no stack paints over overlays */
+      .trophy-stack {
+        --ts-size: 28px;
+        --ts-overlap: -19px;
+        --ts-spread: 5px;
+        position: relative;
+        isolation: isolate;
+        display: inline-flex;
+        align-items: flex-end;
+        padding: 4px 6px 2px 2px;
+        cursor: default;
+      }
+      .trophy-stack.ts-sm {
+        --ts-size: 22px;
+        --ts-overlap: -16px;
+        --ts-spread: 3px;
+      }
+      .trophy-stack.ts-lg {
+        --ts-size: 46px;
+        --ts-overlap: -34px;
+        --ts-spread: 8px;
+      }
+      .trophy-stack-item {
+        width: var(--ts-size);
+        height: var(--ts-size);
+        object-fit: contain;
+        position: relative;
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.7));
+        transform-origin: 50% 100%;
+        transition: margin 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .trophy-stack-item + .trophy-stack-item {
+        margin-left: var(--ts-overlap);
+      }
+      @media (hover: hover) {
+        .trophy-stack:hover .trophy-stack-item + .trophy-stack-item {
+          margin-left: var(--ts-spread);
+        }
+      }
+      @media (hover: hover) {
+        .trophy-stack:hover .trophy-stack-item {
+          transform: translateY(-3px);
+        }
+      }
+      @media (hover: hover) {
+        .trophy-stack .trophy-stack-item:hover {
+          transform: translateY(-6px) scale(1.18);
+          z-index: 60 !important;
+        }
+      }
+      .trophy-stack-count {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 17px;
+        height: 17px;
+        padding: 0 3px;
+        background: var(--card);
+        color: #171200;
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        font-weight: 800;
+        line-height: 17px;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        z-index: 70;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+      @media (hover: hover) {
+        .trophy-stack:hover .trophy-stack-count {
+          transform: translate(4px, -4px);
+          opacity: 0.85;
+        }
+      }
+
+      /* ---------- OVR progression ---------- */
+      #badgeOvrWrap {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        height: 1em;
+        line-height: 1em;
+      }
+      @keyframes ovrRollUp {
+        0% {
+          transform: translateY(85%);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes ovrRollDown {
+        0% {
+          transform: translateY(-85%);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .ovr-roll-up {
+        animation: ovrRollUp 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .ovr-roll-down {
+        animation: ovrRollDown 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      @keyframes ovrGlowUp {
+        0% {
+          outline: 0 solid rgba(47, 168, 79, 0);
+          outline-offset: 0;
+        }
+        25% {
+          outline: 3px solid rgba(69, 192, 106, 0.9);
+          outline-offset: 3px;
+        }
+        100% {
+          outline: 0 solid rgba(47, 168, 79, 0);
+          outline-offset: 8px;
+        }
+      }
+      @keyframes ovrGlowDown {
+        0% {
+          outline: 0 solid rgba(224, 52, 43, 0);
+          outline-offset: 0;
+        }
+        25% {
+          outline: 3px solid rgba(242, 86, 75, 0.9);
+          outline-offset: 3px;
+        }
+        100% {
+          outline: 0 solid rgba(224, 52, 43, 0);
+          outline-offset: 8px;
+        }
+      }
+      .ovr-glow-up {
+        animation: ovrGlowUp var(--ovr-dur, 1.6s) cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .ovr-glow-down {
+        animation: ovrGlowDown var(--ovr-dur, 1.6s) cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      @keyframes ovrDeltaFloat {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, 6px);
+        }
+        15% {
+          opacity: 1;
+          transform: translate(-50%, -4px);
+        }
+        80% {
+          opacity: 1;
+          transform: translate(-50%, -12px);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -20px);
+        }
+      }
+      .ovr-delta-chip {
+        position: absolute;
+        left: 50%;
+        top: -14px;
+        padding: 1px 6px;
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        font-weight: 800;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+        pointer-events: none;
+        z-index: 20;
+        animation: ovrDeltaFloat 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      .ovr-delta-chip.up {
+        background: var(--pitch-hi);
+        color: #06140a;
+      }
+      .ovr-delta-chip.down {
+        background: var(--red);
+        color: #fff;
+      }
+      @keyframes statFlashUp {
+        0%, 100% {
+          color: inherit;
+        }
+        30% {
+          color: #45c06a;
+        }
+      }
+      @keyframes statFlashDown {
+        0%, 100% {
+          color: inherit;
+        }
+        30% {
+          color: #f2564b;
+        }
+      }
+      .stat-flash-up {
+        animation: statFlashUp 1.4s ease both;
+      }
+      .stat-flash-down {
+        animation: statFlashDown 1.4s ease both;
+      }
+
+      /* ---------- Attribute strip ---------- */
+      .attr-cell {
+        padding: 0.65rem 0.5rem 0.55rem;
+        text-align: center;
+        position: relative;
+        transition: background-color 0.12s;
+      }
+      @media (hover: hover) {
+        .attr-cell:hover {
+          background: var(--panel-2) !important;
+        }
+      }
+      .attr-cell .attr-val {
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 1.75rem;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+      }
+      .attr-cell::after {
+        content: "";
+        position: absolute;
+        left: 0.5rem;
+        right: 0.5rem;
+        bottom: 0;
+        height: 2px;
+        background: var(--line-2);
+      }
+      @media (hover: hover) {
+        .attr-cell:hover::after {
+          background: var(--card);
+        }
+      }
+
+      /* ---------- Broadcast ticker ---------- */
+      @keyframes tickerScrollRight {
+        0% {
+          transform: translateX(-50%);
+        }
+        100% {
+          transform: translateX(0%);
+        }
+      }
+      .ticker-track-right {
+        display: flex;
+        width: max-content;
+        animation: tickerScrollRight 48s linear infinite;
+      }
+      @media (hover: hover) {
+        .ticker-track-right:hover {
+          animation-play-state: paused;
+        }
+      }
+      .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        white-space: nowrap;
+        padding: 0 1.1rem;
+        font-family: var(--font-mono);
+        font-size: 12px;
+      }
+      .ticker-item > span:first-child {
+        background: transparent !important;
+        border: 0 !important;
+        padding: 0 !important;
+        color: var(--card) !important;
+        font-family: var(--font-label);
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em !important;
+      }
+      .ticker-item > span:first-child::before {
+        content: "■ ";
+        color: var(--red);
+      }
+      .ticker-item > span:last-child {
+        font-family: var(--font-mono);
+        font-weight: 500 !important;
+        color: var(--ink) !important;
+      }
+      .ticker-item + .ticker-item {
+        border-left: 1px solid var(--line-2);
+      }
+      .live-dot {
+        width: 7px;
+        height: 7px;
+        color: #fff;
+      }
+
+      #newsImpactBadges > span {
+        background: #0a0b0a !important;
+        font-family: var(--font-mono);
+      }
+
+      /* pitch-line header rule */
+      .pitch-rule {
+        height: 3px;
+        background: repeating-linear-gradient(90deg, var(--pitch) 0 64px, #23883f 64px 128px);
+      }
+
+      /* ---------- Interaction layer ----------
+         One press, focus and hit-area model for every control, including the ones app.js generates.
+         Press: the face drops 1px while its bottom key edge shrinks from 2px to 1px, so the
+         control reads as a physical key going down. Hover and release run 120ms ease-out;
+         the press itself has no delay.                                                        */
+      button, [role="button"], [role="tab"], select, summary, .btn {
+        min-height: var(--hit);
+        min-width: var(--hit);
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* Generated Tailwind controls: named properties at the fast timing instead of transition-all at 150ms */
+      button.transition-all, button.transition-colors, button[class*="transition"] {
+        transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+        transition-duration: var(--t-fast);
+        transition-timing-function: var(--ease-out);
+      }
+      :is(button, [role="button"], [role="tab"]):not(:disabled):not([aria-disabled="true"]):not(
+        [aria-busy="true"]
+      ):active {
+        transition-duration: 0ms;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        :is(button, [role="button"], [role="tab"]):not(:disabled):not([aria-disabled="true"]):not(
+          [aria-busy="true"]
+        ):active {
+          transform: translateY(1px) !important;
+        }
+      }
+      .btn:not(:disabled):not([aria-busy="true"]):active,
+      .seg > button:not(:disabled):active,
+      .tab:not(:disabled):active {
+        box-shadow: var(--step-pressed);
+        filter: brightness(0.92);
+      }
+      .btn-ghost, .seg > button, .toolbar > .btn {
+        box-shadow: none;
+      }
+      .btn-ghost:not(:disabled):active {
+        box-shadow: var(--step-pressed);
+      }
+      button:disabled, .btn:disabled, [aria-disabled="true"] {
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none !important;
+      }
+      .btn[aria-busy="true"] {
+        cursor: progress;
+      }
+
+      /* Focus: 2px signal-yellow ring, 2px off the edge. Joined cells (toolbars, segments, tabs, offers)
+         draw it inside so a neighbour or an overflow-hidden frame never clips it. */
+      .toolbar > :focus-visible,
+      .seg > :focus-visible,
+      [role="tablist"] > :focus-visible,
+      .offer-grid :focus-visible,
+      .sb-toolbar > :focus-visible {
+        outline-offset: -4px;
+      }
+      .btn-card:focus-visible, .btn-primary:focus-visible {
+        outline-color: var(--card);
+        box-shadow: 0 0 0 2px var(--bg);
+      }
+      .field:focus-visible {
+        outline: 2px solid var(--card);
+        outline-offset: 2px;
+      }
+
+      /* Tabs */
+      .tab {
+        display: inline-flex;
+        align-items: center;
+        padding: 0 1rem;
+        font-family: var(--font-label);
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        background: var(--panel);
+        box-shadow: inset 0 -3px 0 0 transparent;
+        cursor: pointer;
+        transition:
+          color var(--t-fast) var(--ease-out),
+          background-color var(--t-fast) var(--ease-out),
+          box-shadow var(--t-fast) var(--ease-out),
+          transform var(--t-fast) var(--ease-out);
+      }
+      @media (hover: hover) {
+        .tab:hover {
+          color: var(--ink);
+          background: var(--panel-2);
+        }
+      }
+      .tab[aria-selected="true"] {
+        color: var(--ink);
+        background: var(--panel-2);
+        box-shadow: inset 0 -3px 0 0 var(--card);
+      }
+      .tab[aria-selected="true"]:active {
+        box-shadow: inset 0 -2px 0 0 var(--card);
+      }
+
+      /* Selected tactical toggles also say so to assistive tech (aria-pressed is set in app.js) */
+      .seg > button[aria-pressed="true"] {
+        box-shadow: inset 0 -3px 0 0 #1b6a31;
+      }
+
+      /* ---------- Status motion ----------
+         .pulse   square live marker; a ring radiates from it while a state is live
+         .sim-scan indeterminate scan bar while a season is simulating
+         .alert-flag blinking square before a critical warning                                 */
+      .pulse {
+        position: relative;
+        display: inline-block;
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        background: currentColor;
+      }
+      .pulse.pulse-sm {
+        width: 6px;
+        height: 6px;
+      }
+      .live-dot.pulse {
+        width: 7px;
+        height: 7px;
+      }
+      .pulse::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: currentColor;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .alert-flag::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin-inline-end: 6px;
+        background: currentColor;
+        vertical-align: 1px;
+      }
+      .sim-status {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 0.6rem 0.6rem;
+        padding: 1.5rem 1rem;
+        color: var(--ink-2);
+        background: var(--panel);
+        font-family: var(--font-label);
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .sim-status > .pulse {
+        color: var(--pitch-hi);
+      }
+      .sim-scan {
+        grid-column: 1 / -1;
+        position: relative;
+        height: 3px;
+        background: var(--line);
+        overflow: hidden;
+      }
+      .sim-scan::after {
+        content: "";
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        width: 30%;
+        background: var(--pitch);
+      }
+      @keyframes deltaFade {
+        0%, 100% {
+          opacity: 0;
+          transform: translate(-50%, -8px);
+        }
+        15%, 80% {
+          opacity: 1;
+          transform: translate(-50%, -8px);
+        }
+      }
+      @keyframes fadeOnly {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes pulseRing {
+        from {
+          transform: scale(1);
+          opacity: 0.65;
+        }
+        to {
+          transform: scale(2.75);
+          opacity: 0;
+        }
+      }
+      @keyframes pulseGlow {
+        0%, 100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 0.45;
+        }
+      }
+      @keyframes simScan {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(340%);
+        }
+      }
+      @keyframes flagBlink {
+        0%, 55% {
+          opacity: 1;
+        }
+        56%, 100% {
+          opacity: 0.2;
+        }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .pulse::after {
+          animation: pulseRing 1.4s var(--ease-out) infinite;
+        }
+        .sim-scan::after {
+          animation: simScan 1.1s var(--ease-out) infinite;
+        }
+        [dir="rtl"] .sim-scan::after {
+          animation-direction: reverse;
+        }
+        .alert-flag::before {
+          animation: flagBlink 1s steps(1) infinite;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        /* no movement: the ring becomes a slow in-place glow, the scan bar a fade */
+        .pulse::after {
+          inset: -3px;
+          animation: pulseGlow 2s ease-in-out infinite;
+        }
+        .sim-scan::after {
+          width: 100%;
+          animation: pulseGlow 1.6s ease-in-out infinite;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .ticker-track-right, .shimmer-gold, .celebration-glow {
+          animation: none !important;
+        }
+        .celebration-particle {
+          animation: none !important;
+          opacity: 0 !important;
+        }
+        .animate-fadeInUp, .ovr-roll-up, .ovr-roll-down, .podium-cell, .celebration-continue {
+          animation-name: fadeOnly !important;
+        }
+        .ovr-delta-chip {
+          animation-name: deltaFade !important;
+        }
+        .trophy-stack .trophy-stack-item, .trophy-stack .trophy-stack-count {
+          transform: none !important;
+        }
+        *, *::before, *::after {
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col antialiased relative overflow-x-hidden">
+    <!-- Trophy celebration overlay: one season board per season, one podium cell per title; stays until Continue -->
+    <div
+      id="celebrationOverlay"
+      class="celebration fixed inset-0 z-50 modal-scrim hidden flex-col items-center justify-center p-4 select-none"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="celebrationTitle"
+    >
+      <div class="relative flex flex-col w-full max-w-4xl min-h-0 max-h-full">
+        <div
+          class="celebration-glow absolute top-1/2 left-1/2 w-96 h-96 bg-amber-400/20 blur-3xl pointer-events-none"
+          aria-hidden="true"
+        >
+        </div>
+        <div id="particleContainer" class="absolute top-1/2 left-1/2 w-0 h-0 pointer-events-none" aria-hidden="true">
+        </div>
+        <div class="celebration-board relative z-10">
+          <div class="celebration-bar">
+            <span class="celebration-ft">FT</span>
+            <div class="celebration-heading">
+              <h2 id="celebrationTitle" class="font-display font-black text-xl sm:text-2xl text-amber-300">
+                Silverware secured
+              </h2>
+              <span id="celebrationSpanLabel" class="panel-meta"></span>
+            </div>
+            <div id="celebrationTally" class="celebration-tally" role="img" aria-label="Career silverware">
+              <span class="kicker">Silverware</span>
+              <span class="tally-window" aria-hidden="true"><span
+                  id="celebrationTallyStrip"
+                  class="tally-strip"
+                ></span></span>
+            </div>
+          </div>
+          <div id="celebrationTrophiesContainer" class="podium-seasons"></div>
+        </div>
+        <button id="celebrationContinue" type="button" class="btn btn-card btn-lg celebration-continue relative z-10">
+          Continue
+        </button>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-30 bg-[#0A0B0A] border-b border-[#262A26]">
+      <div class="pitch-rule"></div>
+      <div class="max-w-7xl mx-auto px-3 sm:px-5 h-12 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span
+            class="w-8 h-8 bg-[#ECEAE2] text-[#0A0B0A] font-display font-black text-lg flex items-center justify-center shrink-0"
+            aria-hidden="true"
+          >BS</span>
+          <div class="flex items-baseline gap-2.5 min-w-0">
+            <span class="font-display font-black text-xl uppercase text-white leading-none">BallSim</span>
+          </div>
+          <img
+            src="https://media.copero.com.ar/flags/4x3/ar.svg"
+            id="topNavFlag"
+            class="w-6 h-[18px] object-cover border border-[#3A3F39] shrink-0"
+            alt="Selected nationality"
+          >
+        </div>
+
+        <nav class="flex items-center gap-1.5" aria-label="Career tools">
+          <button id="btnOpenLifestyleNav" class="btn btn-sm btn-ghost" title="Lifestyle and habits">
+            <span aria-hidden="true">🥗</span><span class="hidden sm:inline">Lifestyle</span>
+          </button>
+          <button
+            id="btnOpenGodMenu"
+            class="btn btn-sm btn-ghost hover:!text-[#FF8A3D] hover:!border-[#F26B1D]"
+            title="Developer controls"
+          >
+            <span aria-hidden="true">⚡</span><span class="hidden sm:inline">God Menu</span>
+          </button>
+          <button id="btnNewCareer" class="btn btn-sm btn-ghost btn-danger" title="Restart career">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                stroke-linecap="square"
+                stroke-width="2.25"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            <span class="hidden sm:inline">Restart</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col min-h-0">
+      <!-- SCREEN 1: Player registration -->
+      <section id="screenCreation" class="max-w-3xl mx-auto w-full my-auto py-6 sm:py-10">
+        <div class="flex items-end justify-between gap-4 mb-4 border-b border-[#3A3F39] pb-4">
+          <div>
+            <h1 class="font-display font-black text-5xl sm:text-6xl text-white">Register your player</h1>
+            <p class="prose-copy text-base text-zinc-300 mt-3">
+              Pick a nation, a position and a foot. Clubs from 211 football nations scout you from age 16.
+            </p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <!-- Identity -->
+          <div class="grid-lines grid-cols-1 sm:grid-cols-3">
+            <div class="cell sm:col-span-2">
+              <label for="inputLastName" class="label">Surname</label>
+              <input
+                type="text"
+                id="inputLastName"
+                value="Valente"
+                maxlength="15"
+                class="field uppercase tracking-wide"
+              >
+            </div>
+            <div class="cell">
+              <label for="inputNumber" class="label">Shirt number</label>
+              <input
+                type="number"
+                id="inputNumber"
+                value="10"
+                min="1"
+                max="99"
+                class="field text-center text-lg font-black"
+              >
+            </div>
+          </div>
+
+          <!-- Nationality -->
+          <div class="cell border-t border-[#262A26]">
+            <span class="label">Nationality · 211 nations</span>
+            <button
+              type="button"
+              id="btnOpenCountryModal"
+              class="w-full h-11 bg-[#0A0B0A] border border-[#3A3F39] hover:border-[#F6C516] px-3 flex items-center justify-between transition-colors cursor-pointer group"
+            >
+              <span class="flex items-center gap-3">
+                <img
+                  id="selectedCountryFlag"
+                  src="https://media.copero.com.ar/flags/4x3/ar.svg"
+                  class="w-7 h-5 object-cover border border-[#3A3F39]"
+                  alt=""
+                >
+                <span
+                  id="selectedCountryName"
+                  class="font-display font-extrabold uppercase tracking-wide text-lg text-white"
+                >Argentina (ARG)</span>
+              </span>
+              <span class="kicker group-hover:text-[#F6C516]">Change ▸</span>
+            </button>
+          </div>
+
+          <!-- Dual nationality -->
+          <div class="cell border-t border-[#262A26] bg-[#171A17]">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <div class="text-sm font-bold text-zinc-100">Dual nationality</div>
+                <div class="text-xs text-zinc-400">
+                  Become eligible for a second nation and choose your allegiance later.
+                </div>
+              </div>
+              <label class="switch" title="Toggle dual nationality">
+                <input type="checkbox" id="toggleDualNat" aria-label="Dual nationality">
+                <span class="track"></span>
+              </label>
+            </div>
+            <div id="rowSecondCountry" class="hidden pt-3 mt-3 border-t border-[#262A26]">
+              <span class="label">Second nationality</span>
+              <button
+                type="button"
+                id="btnOpenSecondCountryModal"
+                class="w-full h-10 bg-[#0A0B0A] border border-[#3A3F39] hover:border-[#F6C516] px-3 flex items-center justify-between transition-colors cursor-pointer group"
+              >
+                <span class="flex items-center gap-2.5">
+                  <img
+                    id="selectedSecondCountryFlag"
+                    src="https://media.copero.com.ar/flags/4x3/it.svg"
+                    class="w-6 h-4 object-cover border border-[#3A3F39]"
+                    alt=""
+                  >
+                  <span
+                    id="selectedSecondCountryName"
+                    class="font-display font-extrabold uppercase tracking-wide text-base text-white"
+                  >Italy (ITA)</span>
+                </span>
+                <span class="kicker group-hover:text-[#F6C516]">Change ▸</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Position & foot -->
+          <div class="grid-lines grid-cols-1 sm:grid-cols-5 border-t border-[#262A26]">
+            <div class="cell sm:col-span-3">
+              <span class="label">Position</span>
+              <div class="seg grid-cols-5" id="posSelector">
+                <button
+                  aria-pressed="true"
+                  type="button"
+                  data-pos="ST"
+                  class="btn-pos border-emerald-500 bg-emerald-500/20 text-emerald-400"
+                >
+                  ST
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="LW"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  LW
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="RW"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  RW
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="CAM"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  CAM
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="CM"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  CM
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="CDM"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  CDM
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="LB"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  LB
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="RB"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  RB
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="CB"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  CB
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-pos="GK"
+                  class="btn-pos border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  GK
+                </button>
+              </div>
+            </div>
+            <div class="cell sm:col-span-2">
+              <span class="label">Stronger foot</span>
+              <div class="seg grid-cols-2">
+                <button
+                  aria-pressed="true"
+                  type="button"
+                  data-foot="right"
+                  class="btn-foot border-emerald-500 bg-emerald-500/20 text-emerald-400"
+                >
+                  RIGHT
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  data-foot="left"
+                  class="btn-foot border-zinc-800 bg-zinc-950 text-zinc-400"
+                >
+                  LEFT
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pacing & profile -->
+          <div class="grid-lines grid-cols-1 sm:grid-cols-2 border-t border-[#262A26]">
+            <div class="cell">
+              <label for="selectMode" class="label">Pacing</label>
+              <select id="selectMode" class="field">
+                <option value="long">Intense · 1 season per decision</option>
+                <option value="normal" selected>Normal · 2 seasons per decision</option>
+                <option value="express">Express · 3 seasons per decision</option>
+              </select>
+            </div>
+            <div class="cell">
+              <label for="selectProfile" class="label">Development curve</label>
+              <select id="selectProfile" class="field">
+                <option value="early">Wonderkid · early peak, fast rise</option>
+                <option value="normal" selected>Balanced · standard progression</option>
+                <option value="late">Late bloomer · peaks at 28–33</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="p-3 border-t border-[#262A26] bg-[#171A17]">
+            <button id="btnStartCareer" class="btn btn-go btn-lg w-full">
+              <span>Kick off career</span><span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: Active career dashboard -->
+      <section id="screenCareer" class="hidden flex-1 flex flex-col min-h-0 board">
+        <!-- 1. Live wire ticker -->
+        <div id="newsTickerBar" class="relative overflow-hidden flex items-stretch h-9 bg-[#0A0B0A]">
+          <div class="flex items-center gap-2 bg-[#E0342B] text-white px-3 shrink-0 z-10">
+            <span class="live-dot pulse" aria-hidden="true"></span>
+            <span class="font-label font-bold text-sm uppercase tracking-widest">Live wire</span>
+          </div>
+          <div class="ticker-window relative overflow-hidden flex-1 select-none flex items-center">
+            <div id="newsTickerTrack" class="ticker-track-right flex items-center text-zinc-200"></div>
+          </div>
+        </div>
+
+        <!-- 2. Player scoreboard (container: scoreboard) -->
+        <div class="panel sb overflow-hidden">
+          <img
+            id="hudWatermarkLogo"
+            src=""
+            alt=""
+            class="pointer-events-none absolute end-2 -bottom-10 h-56 w-56 object-contain opacity-[0.04] grayscale"
+          >
+
+          <div class="sb-top relative z-10">
+            <div class="sb-id">
+              <div id="playerBadge" class="ovr-plate border bg-[#111311] text-zinc-400 border-[#262A26]">
+                <span id="badgeOvrWrap"><span id="badgeOvr" class="block">50</span></span>
+                <span class="ovr-label">OVR</span>
+              </div>
+              <div class="sb-name">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <img id="hudFlag" src="" class="w-6 h-[18px] object-cover border border-[#3A3F39]" alt="Nationality">
+                  <img
+                    id="hudSecondFlag"
+                    src=""
+                    class="w-6 h-[18px] object-cover border border-[#3A3F39] hidden"
+                    alt="Second nationality"
+                  >
+                  <span id="hudPosBadge" class="chip !text-[#ECEAE2] !border-[#ECEAE2]">#10 ST</span>
+                  <span id="hudCaptainBadge" class="hidden chip !bg-[#F6C516] !text-[#171200] !border-[#F6C516]"
+                  >© Captain</span>
+                  <div
+                    id="hudFitnessBadge"
+                    class="flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                    title="Fitness and injury status"
+                  >
+                    <span id="dotFitness" class="w-1.5 h-1.5 bg-emerald-400" aria-hidden="true"></span>
+                    <span id="txtFitness">100% Fit</span>
+                  </div>
+                </div>
+                <h2 id="hudPlayerName" class="font-display font-black text-white">Valente</h2>
+              </div>
+            </div>
+
+            <div class="sb-tools">
+              <div class="toolbar sb-toolbar">
+                <button type="button" id="btnOpenPressModal" class="btn" title="Press conferences and media">
+                  <span aria-hidden="true">🎙️</span><span>Press room</span>
+                </button>
+                <button type="button" id="btnOpenBootModal" class="btn" title="Boot deals and sponsorships">
+                  <span aria-hidden="true">👟</span><span id="hudBootLabel">Boots</span>
+                </button>
+                <button type="button" id="btnOpenAgentModal" class="btn" title="Agent and representation">
+                  <img id="hudAgentFlag" src="" class="w-4 h-3 object-cover shrink-0 hidden" alt="">
+                  <span id="hudAgentName" class="wrap-anywhere">Agent</span>
+                </button>
+                <button type="button" id="btnOpenLifestyle" class="btn" title="Lifestyle and investments">
+                  <span aria-hidden="true">🥗</span><span>Lifestyle</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-meta grid-lines relative z-10">
+            <div class="cell flex items-center gap-2.5">
+              <img id="hudClubCrest" src="" class="w-7 h-7 object-contain shrink-0" alt="">
+              <div class="min-w-0">
+                <span class="kicker block">Club</span>
+                <span id="hudTeam" class="font-display font-extrabold uppercase text-lg text-white block wrap-anywhere"
+                >Club</span>
+              </div>
+            </div>
+            <div class="cell">
+              <span class="kicker block">Age</span>
+              <strong id="hudAge" class="value text-lg counting-number">16</strong>
+            </div>
+            <div class="cell">
+              <span class="kicker block">Market value</span>
+              <strong id="hudMarketValue" class="value text-lg text-cyan-400 counting-number">€200K</strong>
+            </div>
+            <div class="cell">
+              <span class="kicker block">Wage</span>
+              <strong id="hudWage" class="value text-lg text-emerald-400">€1,200/wk</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Telemetry: attributes + dressing room -->
+        <div class="board-row lg:grid-cols-12">
+          <div id="cardAttributes" class="lg:col-span-7 panel cq flex flex-col">
+            <div class="panel-head">
+              <span class="panel-title">Attributes</span>
+              <span class="panel-meta">Scale 1–99</span>
+            </div>
+            <div class="attr-grid grid-lines flex-1">
+              <div class="attr-cell">
+                <div id="lblAttr1" class="kicker mb-1">PAC</div>
+                <div id="statPAC" class="attr-val counting-number">50</div>
+              </div>
+              <div class="attr-cell">
+                <div id="lblAttr2" class="kicker mb-1">SHO</div>
+                <div id="statSHO" class="attr-val counting-number">50</div>
+              </div>
+              <div class="attr-cell">
+                <div id="lblAttr3" class="kicker mb-1">PAS</div>
+                <div id="statPAS" class="attr-val counting-number">50</div>
+              </div>
+              <div class="attr-cell">
+                <div id="lblAttr4" class="kicker mb-1">DRI</div>
+                <div id="statDRI" class="attr-val counting-number">50</div>
+              </div>
+              <div class="attr-cell">
+                <div id="lblAttr5" class="kicker mb-1">DEF</div>
+                <div id="statDEF" class="attr-val counting-number">50</div>
+              </div>
+              <div class="attr-cell">
+                <div id="lblAttr6" class="kicker mb-1">PHY</div>
+                <div id="statPHY" class="attr-val counting-number">50</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="cardManagerSection" class="lg:col-span-5 panel cq flex flex-col">
+            <div class="panel-head">
+              <span class="panel-title t-steel">Dressing room</span>
+              <span
+                id="badgeTrustStatus"
+                class="text-[11px] font-black uppercase text-cyan-400 bg-cyan-500/10 px-2 py-0.5 border border-cyan-500/30"
+              >Key Player</span>
+            </div>
+            <div class="meters p-3 my-auto">
+              <div>
+                <div class="flex items-center justify-between gap-3 mb-1.5">
+                  <span class="kicker">Manager trust</span>
+                  <span id="txtTrust" class="value text-sm text-cyan-400">65%</span>
+                </div>
+                <div class="meter"><div id="gaugeTrust" class="bg-cyan-400" style="width: 65%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between gap-3 mb-1.5">
+                  <span class="kicker">Squad morale</span>
+                  <span id="txtMorale" class="value text-sm text-amber-400">80%</span>
+                </div>
+                <div class="meter"><div id="gaugeMorale" class="bg-amber-400" style="width: 80%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Honours + international + reach -->
+        <div class="board-row md:grid-cols-12">
+          <div class="md:col-span-7 panel cq flex flex-col">
+            <div class="panel-head">
+              <span class="panel-title t-card">Trophy cabinet</span>
+              <div class="flex items-center gap-3 panel-meta">
+                <span id="countCollectiveTrophies" class="text-amber-400">0 Titles</span>
+                <span class="text-zinc-500" aria-hidden="true">/</span>
+                <span id="countIndividualHonors" class="text-amber-300">0 Awards</span>
+              </div>
+            </div>
+            <div class="shelf-grid grid-lines flex-1">
+              <div class="cell">
+                <div class="kicker mb-1.5">Club &amp; continental</div>
+                <div
+                  id="hudCollectiveShelf"
+                  class="flex items-center gap-2 overflow-x-auto thin-scrollbar min-h-[46px] py-1"
+                >
+                  <span class="text-xs text-zinc-500">No silverware yet.</span>
+                </div>
+              </div>
+              <div class="cell">
+                <div class="kicker mb-1.5 !text-amber-500">Individual honours</div>
+                <div
+                  id="hudIndividualShelf"
+                  class="flex items-center gap-2.5 overflow-x-auto thin-scrollbar min-h-[46px] py-1"
+                >
+                  <span class="text-xs text-zinc-500">Ballon d’Or and Golden Boot go here.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-5 panel cq flex flex-col">
+            <div
+              id="hudNationalTeamBar"
+              class="flex items-center justify-between gap-3 px-3 py-2.5 border-b border-[#262A26]"
+            >
+              <div class="flex items-center gap-2.5 min-w-0">
+                <img id="natFlag" src="" class="w-8 h-6 object-cover border border-[#3A3F39] shrink-0" alt="">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
+                    <span
+                      id="natCountryName"
+                      class="font-display font-extrabold uppercase text-lg text-white wrap-anywhere"
+                    >Argentina</span>
+                    <span
+                      id="natStatusBadge"
+                      class="text-[11px] font-bold uppercase px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                    >Active</span>
+                  </div>
+                  <div class="text-[11px] text-zinc-400 font-mono mt-1">
+                    <strong id="natApps" class="text-white">0</strong> caps · <strong
+                      id="natGoals"
+                      class="text-emerald-400"
+                    >0</strong> G · <strong id="natAssists" class="text-cyan-400">0</strong> A
+                  </div>
+                </div>
+              </div>
+              <div id="natTrophiesContainer" class="flex items-center gap-1 shrink-0"></div>
+            </div>
+
+            <div id="hudSocialBar" class="flex-1 flex flex-col">
+              <div class="flex items-center justify-between gap-3 px-3 h-8 border-b border-[#262A26]">
+                <span class="kicker">Commercial reach</span>
+                <span class="panel-meta"><strong id="txtTotalFollowers" class="text-emerald-400">0</strong> fans</span>
+              </div>
+              <div class="social-grid grid-lines flex-1">
+                <div id="cardInsta" class="social-cell">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="kicker !text-pink-400">IG</span>
+                    <span id="instaVerified" class="hidden text-sky-400 text-[10px] font-black">✓</span>
+                  </div>
+                  <div class="min-w-0">
+                    <div id="instaHandle" class="text-[11px] font-bold text-white wrap-anywhere">Instagram</div>
+                    <div id="instaFollowers" class="text-[11px] text-pink-300 font-mono wrap-anywhere">Inactive</div>
+                  </div>
+                  <div id="instaAction" class="mt-1.5">
+                    <button type="button" id="btnSignInsta" class="btn btn-sm w-full !text-[11px]">+ Join</button>
+                  </div>
+                </div>
+                <div id="cardTikTok" class="social-cell">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="kicker !text-cyan-400">TT</span>
+                    <span id="tiktokVerified" class="hidden text-cyan-400 text-[10px] font-black">✓</span>
+                  </div>
+                  <div class="min-w-0">
+                    <div id="tiktokHandle" class="text-[11px] font-bold text-white wrap-anywhere">TikTok</div>
+                    <div id="tiktokFollowers" class="text-[11px] text-cyan-300 font-mono wrap-anywhere">Inactive</div>
+                  </div>
+                  <div id="tiktokAction" class="mt-1.5">
+                    <button type="button" id="btnSignTikTok" class="btn btn-sm w-full !text-[11px]">+ Join</button>
+                  </div>
+                </div>
+                <div id="cardX" class="social-cell">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="kicker !text-zinc-200">𝕏</span>
+                    <span id="xVerified" class="hidden text-sky-400 text-[10px] font-black">✓</span>
+                  </div>
+                  <div class="min-w-0">
+                    <div id="xHandle" class="text-[11px] font-bold text-white wrap-anywhere">X</div>
+                    <div id="xFollowers" class="text-[11px] text-zinc-400 font-mono wrap-anywhere">Inactive</div>
+                  </div>
+                  <div id="xAction" class="mt-1.5">
+                    <button type="button" id="btnSignX" class="btn btn-sm w-full !text-[11px]">+ Join</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Decision + table | season log -->
+        <div class="board-row lg:grid-cols-12 flex-1 min-h-0">
+          <div class="lg:col-span-7 board-col min-h-0">
+            <div
+              id="decisionCard"
+              class="panel cq relative overflow-hidden"
+              style="border-inline-start: 3px solid var(--card)"
+            >
+              <div class="flex items-center justify-between gap-x-3 gap-y-1 flex-wrap px-4 pt-3">
+                <span class="inline-flex items-center gap-2"><span
+                    class="pulse"
+                    style="color: var(--card)"
+                    aria-hidden="true"
+                  ></span><span
+                    id="eventCategoryBadge"
+                    class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                  >Decision Required</span></span>
+                <span id="contractCountdown" class="panel-meta"></span>
+              </div>
+              <div class="px-4 pt-2 pb-4">
+                <h3 id="eventTitle" class="font-display font-black text-3xl text-white mb-1.5">Youth Academy Offers</h3>
+                <p id="eventDescription" class="prose-copy text-sm text-zinc-300 mb-4">
+                  Three clubs want to add you to their youth setup. Select where your career starts:
+                </p>
+                <div id="eventOptionsContainer" class="offer-grid"></div>
+              </div>
+            </div>
+
+            <div class="panel cq standings flex-1 flex flex-col min-h-[340px]">
+              <div class="panel-head">
+                <span class="panel-title">League table</span>
+                <div class="flex items-center gap-2 min-w-0">
+                  <img id="activeLeagueLogo" src="" class="w-4 h-4 object-contain shrink-0" alt="">
+                  <span id="activeLeagueName" class="panel-meta !text-zinc-200 !whitespace-normal text-end"
+                  >League</span>
+                </div>
+              </div>
+              <div id="tabContentTable" class="flex-1 overflow-y-auto thin-scrollbar max-h-[560px]">
+                <table class="data-table text-left">
+                  <thead>
+                    <tr>
+                      <th class="ps-3 w-9">#</th>
+                      <th>Club</th>
+                      <th class="text-center w-9">P</th>
+                      <th class="col-wdl text-center w-9">W</th>
+                      <th class="col-wdl text-center w-9">D</th>
+                      <th class="col-wdl text-center w-9">L</th>
+                      <th class="text-center w-11">GD</th>
+                      <th class="text-center w-11 pe-1 !text-zinc-100">Pts</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyLeagueStandings" class="font-semibold font-mono"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 panel cq flex flex-col min-h-0">
+            <div class="panel-head">
+              <span class="panel-title t-steel">Season log</span>
+            </div>
+            <div class="totals-grid grid-lines border-b border-[#262A26]">
+              <div class="cell !py-2" title="Total silverware">
+                <span class="kicker block">Titles</span><strong id="totalTrophies" class="value text-amber-400"
+                >0</strong>
+              </div>
+              <div class="cell !py-2" title="Total goals">
+                <span class="kicker block">Goals</span><strong id="totalGoals" class="value">0</strong>
+              </div>
+              <div class="cell !py-2" title="Total assists">
+                <span class="kicker block">Assists</span><strong id="totalAssists" class="value text-cyan-400"
+                >0</strong>
+              </div>
+              <div class="cell !py-2" title="Total wages earned">
+                <span class="kicker block">Earned</span><strong id="totalWages" class="value text-emerald-400 text-sm"
+                >€0</strong>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto thin-scrollbar max-h-[720px]" id="timelineList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: Career museum -->
+      <section id="screenSummary" class="hidden max-w-5xl mx-auto w-full my-auto py-8">
+        <div class="panel" style="border-top: 3px solid var(--card)">
+          <div class="px-5 sm:px-8 pt-6 pb-5 border-b border-[#262A26]">
+            <div class="flex items-center gap-4 flex-wrap">
+              <img
+                id="sumPlayerFlag"
+                src="https://media.copero.com.ar/flags/4x3/ar.svg"
+                class="w-10 h-7 object-cover border border-[#3A3F39]"
+                alt="Nationality"
+              >
+              <h2 id="sumPlayerName" class="font-display font-black text-5xl sm:text-7xl text-white">Valente</h2>
+              <span
+                id="sumPrimeRatingBadge"
+                class="font-mono font-extrabold text-xl sm:text-2xl px-3 py-1 bg-[#F6C516] text-[#171200]"
+              >91 OVR</span>
+            </div>
+            <p id="sumCareerTitle" class="font-display font-extrabold uppercase text-xl text-amber-400 mt-3">
+              Immortal Legend of the Game
+            </p>
+            <p id="sumRetirementNote" class="prose-copy text-sm text-zinc-300 mt-1"></p>
+          </div>
+
+          <div class="grid-lines grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-b border-[#262A26]">
+            <div class="cell !py-4">
+              <div class="kicker">Matches</div>
+              <div id="sumApps" class="font-mono font-extrabold text-3xl text-white mt-1">650</div>
+            </div>
+            <div class="cell !py-4">
+              <div class="kicker">Goals</div>
+              <div id="sumGoals" class="font-mono font-extrabold text-3xl text-emerald-400 mt-1">420</div>
+            </div>
+            <div class="cell !py-4">
+              <div class="kicker">Assists</div>
+              <div id="sumAssists" class="font-mono font-extrabold text-3xl text-cyan-400 mt-1">210</div>
+            </div>
+            <div class="cell !py-4">
+              <div class="kicker">Trophies</div>
+              <div id="sumTrophies" class="font-mono font-extrabold text-3xl text-amber-400 mt-1">12</div>
+            </div>
+            <div class="cell !py-4">
+              <div class="kicker">Earnings</div>
+              <div id="sumWages" class="font-mono font-extrabold text-2xl text-white mt-1.5">€25M</div>
+            </div>
+            <div class="cell !py-4">
+              <div class="kicker">Social reach</div>
+              <div id="sumFollowers" class="font-mono font-extrabold text-2xl text-pink-400 mt-1.5">14.2M</div>
+            </div>
+          </div>
+
+          <div
+            class="flex flex-wrap items-stretch gap-px bg-[#262A26] border-b border-[#262A26]"
+            role="tablist"
+            aria-label="Career summary"
+          >
+            <button
+              type="button"
+              id="sumTabBtnEras"
+              role="tab"
+              aria-controls="sumPaneEras"
+              aria-selected="true"
+              class="tab"
+            >
+              Club eras
+            </button>
+            <button
+              type="button"
+              id="sumTabBtnTrophies"
+              role="tab"
+              aria-controls="sumPaneTrophies"
+              aria-selected="false"
+              class="tab"
+            >
+              Silverware
+            </button>
+            <button
+              type="button"
+              id="sumTabBtnSocial"
+              role="tab"
+              aria-controls="sumPaneSocial"
+              aria-selected="false"
+              class="tab"
+            >
+              Social legacy
+            </button>
+            <button
+              type="button"
+              id="sumTabBtnCard"
+              role="tab"
+              aria-controls="sumPaneCard"
+              aria-selected="false"
+              class="tab"
+            >
+              Icon card
+            </button>
+          </div>
+
+          <div class="p-5 sm:p-8">
+            <div
+              id="sumPaneEras"
+              role="tabpanel"
+              aria-labelledby="sumTabBtnEras"
+              class="text-left space-y-4 animate-fadeInUp"
+            >
+              <div class="flex items-center justify-between">
+                <h4 class="panel-title">Club eras</h4>
+                <span class="panel-meta" id="sumErasCount">0 Clubs Played</span>
+              </div>
+              <div id="sumErasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+
+            <div
+              id="sumPaneTrophies"
+              role="tabpanel"
+              aria-labelledby="sumTabBtnTrophies"
+              class="hidden text-left space-y-6 animate-fadeInUp"
+            >
+              <div>
+                <h4 class="panel-title t-card mb-3">National team honours</h4>
+                <div id="sumShelfInternational" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+              </div>
+              <div>
+                <h4 class="panel-title t-card mb-3">Continental club competitions</h4>
+                <div id="sumShelfContinental" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+              </div>
+              <div>
+                <h4 class="panel-title t-card mb-3">League titles</h4>
+                <div id="sumShelfLeagues" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+              </div>
+              <div>
+                <h4 class="panel-title t-card mb-3">Domestic cups</h4>
+                <div id="sumShelfCups" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+              </div>
+              <div>
+                <h4 class="panel-title t-card mb-3">Individual awards</h4>
+                <div id="sumShelfAwards" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+              </div>
+            </div>
+
+            <div
+              id="sumPaneSocial"
+              role="tabpanel"
+              aria-labelledby="sumTabBtnSocial"
+              class="hidden text-left space-y-4 animate-fadeInUp"
+            >
+              <div class="panel">
+                <div class="panel-head"><span class="panel-title">Creator milestones</span></div>
+                <div id="sumPlaquesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3"></div>
+              </div>
+
+              <div class="grid-lines grid-cols-1 sm:grid-cols-3 border border-[#262A26]">
+                <div class="p-4" style="box-shadow: inset 0 3px 0 #f04a66">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="kicker">Instagram</span>
+                    <span
+                      id="sumInstaStatus"
+                      class="text-[11px] font-bold uppercase px-1.5 py-0.5 bg-pink-500/20 text-pink-300"
+                    >Active</span>
+                  </div>
+                  <div id="sumInstaHandle" class="text-sm font-bold text-white truncate">@handle</div>
+                  <div id="sumInstaFollowers" class="font-mono font-extrabold text-3xl text-pink-400 mt-2">0</div>
+                  <div id="sumInstaPosts" class="text-[11px] text-zinc-400 font-mono mt-1">0 Posts shared</div>
+                </div>
+                <div class="p-4" style="box-shadow: inset 0 3px 0 #6fb8da">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="kicker">TikTok</span>
+                    <span
+                      id="sumTikTokStatus"
+                      class="text-[11px] font-bold uppercase px-1.5 py-0.5 bg-cyan-500/20 text-cyan-300"
+                    >Active</span>
+                  </div>
+                  <div id="sumTikTokHandle" class="text-sm font-bold text-white truncate">@handle</div>
+                  <div id="sumTikTokFollowers" class="font-mono font-extrabold text-3xl text-cyan-400 mt-2">0</div>
+                  <div id="sumTikTokPosts" class="text-[11px] text-zinc-400 font-mono mt-1">0 Clips posted</div>
+                </div>
+                <div class="p-4" style="box-shadow: inset 0 3px 0 #eceae2">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="kicker">X</span>
+                    <span
+                      id="sumXStatus"
+                      class="text-[11px] font-bold uppercase px-1.5 py-0.5 bg-zinc-700/40 text-zinc-300"
+                    >Active</span>
+                  </div>
+                  <div id="sumXHandle" class="text-sm font-bold text-white truncate">@handle</div>
+                  <div id="sumXFollowers" class="font-mono font-extrabold text-3xl text-white mt-2">0</div>
+                  <div id="sumXPosts" class="text-[11px] text-zinc-400 font-mono mt-1">0 Tweets posted</div>
+                </div>
+              </div>
+
+              <div class="panel p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <div class="kicker">Estimated endorsements &amp; brand deals</div>
+                  <div id="sumCommercialValue" class="font-mono font-extrabold text-3xl text-emerald-400 mt-1">
+                    €18.5M
+                  </div>
+                </div>
+                <div id="sumActiveLifestyles" class="flex flex-wrap gap-1.5 justify-end max-w-sm"></div>
+              </div>
+            </div>
+
+            <div
+              id="sumPaneCard"
+              role="tabpanel"
+              aria-labelledby="sumTabBtnCard"
+              class="hidden flex flex-col items-center justify-center py-4 animate-fadeInUp"
+            >
+              <div class="prime-icon-card w-72 sm:w-80 p-6 text-center text-amber-100 relative overflow-hidden">
+                <div class="shimmer-gold absolute inset-0 pointer-events-none"></div>
+                <div class="relative z-10 flex items-start justify-between border-b border-amber-500/40 pb-3 mb-4">
+                  <div class="text-left">
+                    <div id="cardPrimeOvr" class="font-mono font-extrabold text-5xl text-amber-300 leading-none">
+                      94
+                    </div>
+                    <div
+                      id="cardPrimePos"
+                      class="font-label text-sm font-bold text-amber-400 uppercase tracking-widest mt-1"
+                    >
+                      ST
+                    </div>
+                  </div>
+                  <div class="flex flex-col items-end gap-1.5">
+                    <img id="cardPrimeFlag" src="" class="w-9 h-6 object-cover border border-amber-500/50" alt="">
+                    <span class="font-label text-[11px] font-bold tracking-widest uppercase text-amber-300">Icon</span>
+                  </div>
+                </div>
+                <div class="relative z-10 my-4">
+                  <div
+                    class="w-24 h-24 mx-auto bg-[#0A0B0A] border border-amber-400/60 flex items-center justify-center text-4xl"
+                    aria-hidden="true"
+                  >
+                    ⚽
+                  </div>
+                  <div id="cardPrimeName" class="font-display font-black text-3xl uppercase text-white mt-3">
+                    VALENTE
+                  </div>
+                  <div
+                    id="cardPrimeLegacy"
+                    class="font-label text-[11px] font-bold uppercase tracking-widest text-amber-400 mt-0.5"
+                  >
+                    Prime Icon
+                  </div>
+                </div>
+                <div
+                  class="relative z-10 grid grid-cols-2 gap-x-6 gap-y-1.5 border-t border-b border-amber-500/40 py-3 my-4 font-mono text-sm font-extrabold"
+                >
+                  <div class="flex justify-between">
+                    <span id="cardLblPAC" class="text-amber-300">PAC</span><span id="cardPAC" class="text-white"
+                    >92</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span id="cardLblDRI" class="text-amber-300">DRI</span><span id="cardDRI" class="text-white"
+                    >93</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span id="cardLblSHO" class="text-amber-300">SHO</span><span id="cardSHO" class="text-white"
+                    >95</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span id="cardLblDEF" class="text-amber-300">DEF</span><span id="cardDEF" class="text-white"
+                    >45</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span id="cardLblPAS" class="text-amber-300">PAS</span><span id="cardPAS" class="text-white"
+                    >88</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span id="cardLblPHY" class="text-amber-300">PHY</span><span id="cardPHY" class="text-white"
+                    >86</span>
+                  </div>
+                </div>
+                <div
+                  class="relative z-10 flex items-center justify-center gap-2 overflow-x-auto thin-scrollbar py-1"
+                  id="cardClubsStrip"
+                >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 sm:px-8 py-4 border-t border-[#262A26] bg-[#171A17] flex justify-end">
+            <button id="btnPlayAgain" class="btn btn-go btn-lg">
+              Start another career <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Country selection modal -->
+    <div id="countryModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="modal max-w-2xl h-[85vh] max-h-[680px]" style="--accent: var(--card)">
+        <div class="modal-head">
+          <div>
+            <h3 class="modal-title">Select nationality</h3>
+          </div>
+          <button id="btnCloseCountryModal" class="btn-x" aria-label="Close">✕</button>
+        </div>
+        <div class="p-3 border-b border-[#262A26]">
+          <label for="inputSearchCountry" class="sr-only">Search country</label>
+          <input
+            type="text"
+            id="inputSearchCountry"
+            placeholder="Search by name or code: Argentina, FRA, BRA…"
+            class="field"
+          >
+        </div>
+        <div id="countryGrid" class="flex-1 overflow-y-auto thin-scrollbar p-3 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+        </div>
+      </div>
+    </div>
+
+    <!-- God menu login -->
+    <div id="godLoginModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-4">
+      <div class="modal max-w-md" style="--accent: var(--hazard)">
+        <div class="modal-head">
+          <div>
+            <h3 class="modal-title"><span aria-hidden="true">⚡</span> Developer God Menu</h3>
+          </div>
+        </div>
+        <div class="p-4 space-y-3">
+          <div>
+            <label for="godUsername" class="label">Username</label>
+            <input type="text" id="godUsername" placeholder="admin" class="field">
+          </div>
+          <div>
+            <label for="godPassword" class="label">Password</label>
+            <input type="password" id="godPassword" placeholder="•••••" class="field">
+          </div>
+          <p id="godLoginError" class="text-xs text-rose-400 font-bold hidden">Invalid username or password.</p>
+        </div>
+        <div class="modal-foot">
+          <button type="button" id="btnCancelGodLogin" class="btn btn-ghost flex-1">Cancel</button>
+          <button type="button" id="btnSubmitGodLogin" class="btn btn-hazard flex-1">Log in</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- God menu control panel -->
+    <div id="godPanelModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="modal max-w-2xl max-h-[90vh]" style="--accent: var(--hazard)">
+        <div class="modal-head">
+          <h3 class="modal-title">
+            <span aria-hidden="true">⚡</span> God mode <span class="chip !text-[#FF8A3D] !border-[#F26B1D]"
+            >Admin</span>
+          </h3>
+          <button id="btnCloseGodPanel" class="btn-x" aria-label="Close">✕</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto thin-scrollbar">
+          <div class="p-4 space-y-3 border-b border-[#262A26]">
+            <div class="flex items-center justify-between">
+              <h4 class="panel-title">Attributes</h4>
+              <button type="button" id="btnGodMaxStats" class="btn btn-sm btn-hazard">Max all to 99</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div>
+                <label for="godPace" class="label">Pace</label><input
+                  type="number"
+                  id="godPace"
+                  min="35"
+                  max="99"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godShooting" class="label">Shooting</label><input
+                  type="number"
+                  id="godShooting"
+                  min="35"
+                  max="99"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godPassing" class="label">Passing</label><input
+                  type="number"
+                  id="godPassing"
+                  min="35"
+                  max="99"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godDribbling" class="label">Dribbling</label><input
+                  type="number"
+                  id="godDribbling"
+                  min="35"
+                  max="99"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godDefending" class="label">Defending</label><input
+                  type="number"
+                  id="godDefending"
+                  min="35"
+                  max="99"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godPhysical" class="label">Physical</label><input
+                  type="number"
+                  id="godPhysical"
+                  min="35"
+                  max="99"
+                  class="field field-sm"
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3 border-b border-[#262A26]">
+            <h4 class="panel-title">Vitals &amp; contract</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div>
+                <label for="godAge" class="label">Age</label><input
+                  type="number"
+                  id="godAge"
+                  min="16"
+                  max="43"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godWage" class="label">Wage €/wk</label><input
+                  type="number"
+                  id="godWage"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godMarketValue" class="label">Value €</label><input
+                  type="number"
+                  id="godMarketValue"
+                  class="field field-sm"
+                >
+              </div>
+              <div>
+                <label for="godContractYears" class="label">Contract yrs</label><input
+                  type="number"
+                  id="godContractYears"
+                  min="1"
+                  max="5"
+                  class="field field-sm"
+                >
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" id="btnGodMaxMorale" class="btn btn-sm">Morale → 100%</button>
+              <button type="button" id="btnGodMaxTrust" class="btn btn-sm">Coach trust → 100%</button>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3 border-b border-[#262A26]">
+            <h4 class="panel-title">Transfer to any club</h4>
+            <div class="flex gap-2">
+              <label for="godSelectClub" class="sr-only">Club</label>
+              <select id="godSelectClub" class="field flex-1"></select>
+              <button type="button" id="btnGodTransfer" class="btn btn-hazard !h-10">Transfer</button>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <h4 class="panel-title t-card">Spawn silverware</h4>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" class="btn-god-trophy btn btn-sm" data-trophy="world_cup">+1 World Cup</button>
+              <button type="button" class="btn-god-trophy btn btn-sm" data-trophy="continental_primary">
+                +1 Champions League
+              </button>
+              <button type="button" class="btn-god-trophy btn btn-sm" data-trophy="league">+1 League title</button>
+              <button type="button" class="btn-god-trophy btn btn-sm" data-trophy="cup">+1 Domestic cup</button>
+              <button type="button" class="btn-god-award btn btn-sm" data-award="ballon_dor">+1 Ballon d’Or</button>
+              <button type="button" class="btn-god-award btn btn-sm" data-award="golden_boot">+1 Golden Boot</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot justify-end">
+          <button type="button" id="btnGodApply" class="btn btn-hazard">Apply changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lifestyle modal -->
+    <div id="lifestyleModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="modal max-w-2xl max-h-[90vh]" style="--accent: var(--pitch)">
+        <div class="modal-head">
+          <div class="flex items-center gap-3">
+            <span class="icon-tile" aria-hidden="true">🥗</span>
+            <div>
+              <h3 class="modal-title">Lifestyle &amp; habits</h3>
+            </div>
+          </div>
+          <button id="btnCloseLifestyle" class="btn-x" aria-label="Close">✕</button>
+        </div>
+        <div class="grid-lines grid-cols-3 border-b border-[#262A26]">
+          <div class="cell">
+            <div class="kicker">Weekly cost</div>
+            <div id="lifestyleWeeklyCost" class="text-sm font-black text-rose-400">€0/wk</div>
+          </div>
+          <div class="cell">
+            <div class="kicker">Annual dividends</div>
+            <div id="lifestyleAnnualDividends" class="text-sm font-black text-emerald-400">€0/yr</div>
+          </div>
+          <div class="cell">
+            <div class="kicker">Injury risk</div>
+            <div id="lifestyleInjuryRiskMod" class="text-sm font-black text-emerald-400">0% Baseline</div>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto thin-scrollbar p-3 space-y-2" id="lifestyleChoicesList"></div>
+        <div class="modal-foot justify-end">
+          <button type="button" id="btnDoneLifestyle" class="btn btn-go">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent hub modal -->
+    <div id="agentModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="modal max-w-4xl max-h-[92vh]" style="--accent: var(--card)">
+        <div class="modal-head">
+          <div class="flex items-center gap-3">
+            <span class="icon-tile" aria-hidden="true">💼</span>
+            <div>
+              <h3 class="modal-title">
+                Agents &amp; representation <span class="chip !text-amber-300 !border-amber-500/50">40 agents</span>
+              </h3>
+            </div>
+          </div>
+          <button type="button" id="btnCloseAgentModal" class="btn-x" aria-label="Close">✕</button>
+        </div>
+        <div id="currentAgentSection" class="p-3 bg-[#171A17] border-b border-[#262A26]"></div>
+        <div class="p-3 border-b border-[#262A26] flex flex-col sm:flex-row items-center gap-2">
+          <label for="agentSearchInput" class="sr-only">Search agents</label>
+          <input
+            type="text"
+            id="agentSearchInput"
+            placeholder="Search by name, nationality, agency or agenda…"
+            class="field field-sm flex-1 w-full"
+          >
+          <div class="flex items-center gap-1 w-full sm:w-auto overflow-x-auto thin-scrollbar" id="agentTierFilterBtns">
+            <button
+              type="button"
+              aria-pressed="true"
+              class="btn-agent-filter px-3 py-1.5 text-[11px] font-extrabold bg-amber-500 text-zinc-950 cursor-pointer"
+              data-tier="all"
+            >
+              All (40)
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              class="btn-agent-filter px-3 py-1.5 text-[11px] font-extrabold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 cursor-pointer"
+              data-tier="S"
+            >
+              World Class
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              class="btn-agent-filter px-3 py-1.5 text-[11px] font-extrabold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 cursor-pointer"
+              data-tier="A"
+            >
+              Elite
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              class="btn-agent-filter px-3 py-1.5 text-[11px] font-extrabold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 cursor-pointer"
+              data-tier="B"
+            >
+              Established
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              class="btn-agent-filter px-3 py-1.5 text-[11px] font-extrabold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 cursor-pointer"
+              data-tier="C"
+            >
+              Specialist
+            </button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto thin-scrollbar p-3" id="agentMarketGrid"></div>
+        <div class="modal-foot">
+          <div>Bank balance <strong id="agentPlayerBalance" class="font-mono text-emerald-400 ml-1">€0</strong></div>
+          <button type="button" id="btnDoneAgent" class="btn btn-card">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deadline-day negotiation modal -->
+    <div id="hotSeatModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="modal max-w-3xl" style="--accent: var(--red)">
+        <div class="modal-head">
+          <div class="flex items-center gap-3">
+            <span class="icon-tile" aria-hidden="true">⏱</span>
+            <div>
+              <h3 class="modal-title">
+                Deadline day negotiation <span class="chip !bg-[#E0342B] !text-white !border-[#E0342B]"><span
+                    class="pulse pulse-sm"
+                    aria-hidden="true"
+                  ></span><span id="hotSeatDeadlineBadge">24h Left</span></span>
+              </h3>
+              <p id="hotSeatClubSubtitle" class="modal-sub">Contract talks with live meters for each side.</p>
+            </div>
+          </div>
+          <button type="button" id="btnCloseHotSeatModal" class="btn-x" aria-label="Close">✕</button>
+        </div>
+
+        <div class="grid-lines grid-cols-1 sm:grid-cols-3 border-b border-[#262A26]">
+          <div class="cell">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="kicker">Club patience</span><strong
+                id="hotSeatPatienceVal"
+                class="value text-sm text-emerald-400"
+              >100%</strong>
+            </div>
+            <div class="meter"><div id="hotSeatPatienceBar" class="bg-emerald-500" style="width: 100%"></div></div>
+            <span id="hotSeatWalkoutWarning" class="text-xs text-zinc-400 mt-1.5 block">Walkout risk: Low</span>
+          </div>
+          <div class="cell">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="kicker">Agent leverage</span><strong
+                id="hotSeatLeverageVal"
+                class="value text-sm text-[#6FB8DA]"
+              >65%</strong>
+            </div>
+            <div class="meter"><div id="hotSeatLeverageBar" class="bg-[#6FB8DA]" style="width: 65%"></div></div>
+            <span id="hotSeatAgentBadge" class="text-xs text-zinc-400 mt-1.5 block">Super-Agent (+15% boost)</span>
+          </div>
+          <div class="cell">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="kicker">Manager urgency</span><strong
+                id="hotSeatUrgencyVal"
+                class="value text-sm text-[#F6C516]"
+              >40%</strong>
+            </div>
+            <div class="meter"><div id="hotSeatUrgencyBar" class="bg-[#F6C516]" style="width: 40%"></div></div>
+            <span id="hotSeatUrgencyNote" class="text-xs text-zinc-400 mt-1.5 block">Window closing fast</span>
+          </div>
+        </div>
+
+        <div class="p-4 space-y-3 overflow-y-auto max-h-[50vh] thin-scrollbar">
+          <div
+            class="border border-[#262A26] bg-[#0A0B0A] p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          >
+            <div>
+              <span class="kicker block">Base weekly wage</span>
+              <span id="hotSeatCurrentOfferWage" class="text-xs font-mono text-zinc-400">Club Offer: €25,000 / wk</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-mono font-black text-white">€</span>
+              <label for="hotSeatDemandWage" class="sr-only">Wage demand</label>
+              <input
+                type="number"
+                id="hotSeatDemandWage"
+                step="1000"
+                min="1000"
+                class="field w-40 !text-[#6FB8DA] font-black"
+              >
+              <span class="kicker">/ wk</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="border border-[#262A26] bg-[#0A0B0A] p-3">
+              <label for="hotSeatSquadStatus" class="label">Squad status guarantee</label>
+              <select id="hotSeatSquadStatus" class="field">
+                <option value="Crucial">Crucial (≥85% starts)</option>
+                <option value="Important" selected>Important (≥65% starts)</option>
+                <option value="Squad Rotation">Squad rotation (≥40% starts)</option>
+                <option value="Prospect">Prospect (≥25% starts)</option>
+              </select>
+            </div>
+            <div class="border border-[#262A26] bg-[#0A0B0A] p-3">
+              <label for="hotSeatAppearanceFee" class="label">Appearance fee €</label>
+              <input type="number" id="hotSeatAppearanceFee" step="500" value="2500" class="field">
+            </div>
+          </div>
+          <div
+            id="hotSeatRoundLog"
+            class="prose-copy text-sm text-zinc-200 border-l-2 border-[#E0342B] bg-[#171A17] p-3"
+          >
+            Round 1 of 5: The club has laid down their opening proposal. Push too hard and they may walk away.
+          </div>
+        </div>
+
+        <div class="modal-foot flex-wrap">
+          <button type="button" id="btnHotSeatWalkAway" class="btn btn-ghost btn-danger">Walk away</button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnHotSeatCounter" class="btn">Counter-offer →</button>
+            <button type="button" id="btnHotSeatAccept" class="btn btn-go">Accept deal ✓</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div
+      id="socialToast"
+      class="fixed bottom-4 right-4 z-50 max-w-sm w-[calc(100%-2rem)] bg-[#111311] border border-[#3A3F39] p-3 hidden transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-none"
+      style="border-inline-start: 3px solid var(--card)"
+      role="status"
+    >
+      <div class="flex items-start gap-3">
+        <div id="toastIcon" class="icon-tile !w-9 !h-9 text-base">📸</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <span id="toastTitle" class="font-display font-black text-sm uppercase tracking-wide text-pink-400"
+            >Social Update</span>
+            <span id="toastGain" class="font-mono text-xs font-black text-emerald-400">+25.4K followers</span>
+          </div>
+          <p id="toastMessage" class="text-xs text-zinc-300 mt-1 line-clamp-2">
+            “Three points in the bag! Focused on next week 🔥⚽”
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boots & sponsorships modal -->
+    <div id="bootModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="modal max-w-4xl max-h-[92vh]" style="--accent: var(--hazard)">
+        <div class="modal-head">
+          <div class="flex items-center gap-3">
+            <span class="icon-tile" aria-hidden="true">👟</span>
+            <div>
+              <h3 class="modal-title">Boot deals &amp; sponsorships</h3>
+            </div>
+          </div>
+          <button type="button" id="btnCloseBootModal" class="btn-x" aria-label="Close">✕</button>
+        </div>
+        <div id="currentBootSection" class="p-3 bg-[#171A17] border-b border-[#262A26]"></div>
+        <div class="px-3 pt-3 border-b border-[#262A26] flex items-end gap-1">
+          <button
+            type="button"
+            id="tabBootDeals"
+            class="px-4 py-1.5 text-xs font-black bg-purple-600 text-white cursor-pointer"
+          >
+            Boot suppliers
+          </button>
+          <button
+            type="button"
+            id="tabBrandDeals"
+            class="px-4 py-1.5 text-xs font-black bg-zinc-800 hover:bg-zinc-700 text-zinc-300 cursor-pointer"
+          >
+            Brand ambassadors
+          </button>
+        </div>
+        <div
+          id="paneBootCatalog"
+          class="flex-1 overflow-y-auto thin-scrollbar p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2"
+        >
+        </div>
+        <div
+          id="paneBrandSponsorships"
+          class="hidden flex-1 overflow-y-auto thin-scrollbar p-3 grid grid-cols-1 sm:grid-cols-2 gap-2"
+        >
+        </div>
+        <div class="modal-foot">
+          <div>
+            Weekly sponsorship income <strong id="bootTotalWeeklyPay" class="font-mono text-purple-400 ml-1"
+            >€0/wk</strong>
+          </div>
+          <button type="button" id="btnDoneBoot" class="btn btn-hazard">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Press room modal -->
+    <div id="pressModal" class="fixed inset-0 z-50 modal-scrim hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="modal max-w-2xl max-h-[90vh]" style="--accent: var(--steel)">
+        <div class="modal-head">
+          <div class="flex items-center gap-3">
+            <span class="icon-tile" aria-hidden="true">🎙️</span>
+            <div>
+              <h3 class="modal-title">
+                Press room <span id="pressOutletBadge" class="chip !text-sky-300 !border-sky-500/50">Sky Sports</span>
+              </h3>
+            </div>
+          </div>
+          <button type="button" id="btnClosePressModal" class="btn-x" aria-label="Close">✕</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto thin-scrollbar p-4 space-y-3">
+          <div class="border border-[#262A26] bg-[#0A0B0A] p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span
+                id="pressScenarioBadge"
+                class="text-[11px] font-bold uppercase px-2 py-0.5 bg-sky-500/20 text-sky-400 border border-sky-500/30"
+              >Post-Match Interview</span>
+              <span id="pressOutletDate" class="panel-meta">LIVE BROADCAST</span>
+            </div>
+            <p id="pressQuestionText" class="prose-copy text-base sm:text-lg font-semibold text-white leading-snug">
+              “Your performance out there was decisive. How are you feeling about the squad’s championship ambition this
+              season?”
+            </p>
+          </div>
+
+          <div id="pressResponsesContainer" class="space-y-1.5"></div>
+
+          <div
+            id="pressHeadlinePreview"
+            class="hidden border border-[#3A3F39] bg-[#ECEAE2] text-[#0A0B0A] p-4 space-y-3"
+          >
+            <div class="flex items-center justify-between border-b-2 border-[#0A0B0A] pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-[#E0342B]"></span>
+                <span
+                  id="newsOutletHeader"
+                  class="font-display font-black text-base uppercase tracking-wider text-[#0A0B0A]"
+                >MARCA FRONT PAGE</span>
+              </div>
+              <span class="font-label text-xs font-bold uppercase tracking-widest text-[#B9241C]">Breaking</span>
+            </div>
+            <h4 id="newsHeadlineText" class="font-display font-black text-3xl text-[#0A0B0A]">
+              “We can beat anyone” — Valente makes title vow
+            </h4>
+            <p id="newsQuoteSnippet" class="prose-copy text-sm text-[#363934] border-l-2 border-[#0A0B0A] pl-3">
+              “The striker dismissed pressure and rallied teammates in a fiery post-match conference.”
+            </p>
+            <div
+              id="newsImpactBadges"
+              class="flex flex-wrap items-center gap-2 pt-2 border-t border-[#B9BAB2] text-[11px] font-extrabold"
+            >
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot justify-end">
+          <button type="button" id="btnDonePress" class="btn btn-primary">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

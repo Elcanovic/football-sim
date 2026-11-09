@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ctags": {
+      "command": "/opt/homebrew/Caskroom/miniforge/base/bin/ctags-mcp",
+      "args": [
+        "--tags-file",
+        "tags"
+      ]
+    }
+  }
+}
