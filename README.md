@@ -2,6 +2,8 @@
 
 An enhanced, high-realism, fast-paced football career simulator evolved from the original turn-based game engine.
 
+**▶ Play online: https://elcanovic.github.io/football-sim/** (rebuilt and redeployed on every push to `main`)
+
 ## 🚀 Key Realism Enhancements
 
 1. **Granular Attribute Breakdown (Beyond Single OVR)**
